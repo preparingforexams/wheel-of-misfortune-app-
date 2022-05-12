@@ -1,0 +1,34 @@
+name: Main
+on:
+  push:
+    branches:
+      - 'main'
+
+jobs:
+  push_docker:
+    runs-on: ubuntu-latest
+    if: success() && github.ref == 'refs/heads/main'
+    steps:
+      - uses: actions/checkout@v3
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Build the tagged Docker image
+        run: docker build -t ghcr.io/preparingforexams/wheel-of-misfortune-app:${GITHUB_SHA} --build-arg "build=${GITHUB_SHA}" .
+      - name: Push the tagged Docker image
+        run: docker push ghcr.io/preparingforexams/wheel-of-misfortune-app:${GITHUB_SHA}
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: push_docker
+    steps:
+      - uses: actions/checkout@v3
+      - name: Substitute environment variables in values.yaml
+        run: "envsubst < values.yaml > values_sub.yaml && mv values_sub.yaml values.yaml"
+      - uses: WyriHaximus/github-action-helm3@v2
+        with:
+          exec: helm upgrade app . --install --namespace=misfortune --atomic
+          kubeconfig: '${{ secrets.KUBECONFIG_RAW }}'
