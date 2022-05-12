@@ -7,6 +7,8 @@ import 'package:sensors_plus/sensors_plus.dart';
 
 abstract class _MisfortuneEvent {}
 
+class SubscribeEvent implements _MisfortuneEvent {}
+
 class SpinEvent implements _MisfortuneEvent {}
 
 class _AccelEvent implements _MisfortuneEvent {
@@ -16,6 +18,7 @@ class _AccelEvent implements _MisfortuneEvent {
 }
 
 enum Stage {
+  awaitingPress,
   awaitingSpin,
   spinning,
   failed,
@@ -30,7 +33,7 @@ class MisfortuneState {
     this.movement,
   });
 
-  MisfortuneState.initial() : this._(stage: Stage.awaitingSpin);
+  MisfortuneState.initial() : this._(stage: Stage.awaitingPress);
 
   MisfortuneState spinning() {
     return const MisfortuneState._(stage: Stage.spinning);
@@ -40,18 +43,30 @@ class MisfortuneState {
     return const MisfortuneState._(stage: Stage.failed);
   }
 
+  MisfortuneState awaitPress() {
+    return const MisfortuneState._(stage: Stage.awaitingPress);
+  }
+
+  MisfortuneState awaitSpin() {
+    return const MisfortuneState._(stage: Stage.awaitingSpin);
+  }
+
   MisfortuneState moved(double speed) {
-    return MisfortuneState._(stage: stage, movement: speed.toString());
+    return MisfortuneState._(
+      stage: Stage.awaitingPress,
+      movement: speed.toString(),
+    );
   }
 }
 
 class MisfortuneBloc extends Bloc<_MisfortuneEvent, MisfortuneState> {
   final MisfortuneClient _client;
+  StreamSubscription? _subscription;
 
   MisfortuneBloc(this._client) : super(MisfortuneState.initial()) {
     on<SpinEvent>(_spin);
     on<_AccelEvent>(_accel);
-    userAccelerometerEvents.listen((event) => add(_AccelEvent(event)));
+    on<SubscribeEvent>(_sub);
   }
 
   FutureOr<void> _spin(
@@ -73,6 +88,17 @@ class MisfortuneBloc extends Bloc<_MisfortuneEvent, MisfortuneState> {
   FutureOr<void> _accel(_AccelEvent event, Emitter<MisfortuneState> emit) {
     final accel = event.event;
     final length = norm(accel.x, accel.y, accel.z);
-    print("length: $length");
+    _subscription?.cancel();
+    emit(state.awaitPress());
+  }
+
+  FutureOr<void> _sub(
+    SubscribeEvent event,
+    Emitter<MisfortuneState> emit,
+  ) {
+    _subscription = userAccelerometerEvents.listen(
+      (event) => add(_AccelEvent(event)),
+    );
+    emit(state.awaitSpin());
   }
 }

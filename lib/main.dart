@@ -56,14 +56,19 @@ class SpinContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final bloc = BlocProvider.of<MisfortuneBloc>(context);
     return BlocBuilder<MisfortuneBloc, MisfortuneState>(
       builder: (context, state) {
-        final movement = state.movement;
-        if (movement == null) {
-          return const CircularProgressIndicator();
-        } else {
-          return Text(movement);
+        final bloc = BlocProvider.of<MisfortuneBloc>(context);
+        switch (state.stage) {
+          case Stage.awaitingPress:
+            return ElevatedButton(
+              onPressed: () => bloc.add(SubscribeEvent()),
+              child: const Text("Let's go!"),
+            );
+          case Stage.awaitingSpin:
+            return const Text("Spin the wheel!");
+          default:
+            return Text(state.movement ?? 'nothing');
         }
       },
     );
