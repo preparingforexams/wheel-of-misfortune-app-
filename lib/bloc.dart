@@ -85,11 +85,16 @@ class MisfortuneBloc extends Bloc<_MisfortuneEvent, MisfortuneState> {
     return sqrt(pow(a, 2) + pow(b, 2) + pow(c, 2));
   }
 
-  FutureOr<void> _accel(_AccelEvent event, Emitter<MisfortuneState> emit) {
+  FutureOr<void> _accel(
+    _AccelEvent event,
+    Emitter<MisfortuneState> emit,
+  ) async {
     final accel = event.event;
     final length = norm(accel.x, accel.y, accel.z);
     _subscription?.cancel();
-    emit(state.awaitPress());
+    emit(state.spinning().moved(length));
+    await Future.delayed(const Duration(seconds: 3));
+    emit(state.awaitSpin());
   }
 
   FutureOr<void> _sub(
