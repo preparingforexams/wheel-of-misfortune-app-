@@ -176,7 +176,6 @@ class MisfortuneBloc extends Bloc<_MisfortuneEvent, MisfortuneState> {
     if (state.stage != Stage.awaitingSpin) {
       return;
     }
-    _subscription?.cancel();
     final accel = event.event;
     final length = norm(
       x: accel.x,
@@ -193,13 +192,14 @@ class MisfortuneBloc extends Bloc<_MisfortuneEvent, MisfortuneState> {
       final result = await _client.spin(code: state.code!, speed: length);
       if (result) {
         emit(state.spinning(length));
-      } else if (state.stage != Stage.spinning) {
+      } else {
         emit(state.failed(length, "Jemand anderes war schneller"));
       }
     } on Exception catch (e) {
       emit(state.failed(length, e.toString()));
     }
 
+    _subscription?.cancel();
     await Future.delayed(const Duration(seconds: 5));
     emit(state.awaitPress());
   }
