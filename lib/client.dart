@@ -12,7 +12,7 @@ class HttpMisfortuneClient implements MisfortuneClient {
         "api.bembel.party",
         "spin",
         {
-          "speed": speed,
+          "speed": "$speed",
         },
       ),
       headers: {"Authorization": "Bearer $code"},
