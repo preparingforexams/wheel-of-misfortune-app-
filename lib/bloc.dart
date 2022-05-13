@@ -9,8 +9,6 @@ abstract class _MisfortuneEvent {}
 
 class SubscribeEvent implements _MisfortuneEvent {}
 
-class SpinEvent implements _MisfortuneEvent {}
-
 class _AccelEvent implements _MisfortuneEvent {
   final UserAccelerometerEvent event;
 
@@ -53,7 +51,7 @@ class MisfortuneState {
 
   MisfortuneState moved(double speed) {
     return MisfortuneState._(
-      stage: Stage.awaitingPress,
+      stage: stage,
       movement: speed.toString(),
     );
   }
@@ -64,18 +62,16 @@ class MisfortuneBloc extends Bloc<_MisfortuneEvent, MisfortuneState> {
   StreamSubscription? _subscription;
 
   MisfortuneBloc(this._client) : super(MisfortuneState.initial()) {
-    on<SpinEvent>(_spin);
     on<_AccelEvent>(_accel);
     on<SubscribeEvent>(_sub);
   }
 
   FutureOr<void> _spin(
-    SpinEvent event,
-    Emitter<MisfortuneState> emit,
+    Emitter<MisfortuneState> emit
   ) async {
     final result = await _client.spin();
     if (result) {
-      emit(state.spinning());
+     emit(state.spinning());
     } else {
       emit(state.failed());
     }
@@ -92,9 +88,10 @@ class MisfortuneBloc extends Bloc<_MisfortuneEvent, MisfortuneState> {
     final accel = event.event;
     final length = norm(accel.x, accel.y, accel.z);
     _subscription?.cancel();
-    emit(state.spinning().moved(length));
+    emit(state.moved(length));
+    await _spin(emit);
     await Future.delayed(const Duration(seconds: 3));
-    emit(state.awaitSpin());
+    //emit(state.awaitSpin());
   }
 
   FutureOr<void> _sub(
