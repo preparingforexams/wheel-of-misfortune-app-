@@ -130,6 +130,9 @@ class MisfortuneBloc extends Bloc<_MisfortuneEvent, MisfortuneState> {
     required String? code,
   })  : _client = client,
         super(MisfortuneState.initial(code)) {
+    if (code != null) {
+      _subscribe();
+    }
     on<_AccelEvent>(_accel);
     on<PressButtonEvent>(_pressButton);
     on<ScanQrEvent>(_scanQr);
@@ -163,13 +166,17 @@ class MisfortuneBloc extends Bloc<_MisfortuneEvent, MisfortuneState> {
     emit(state.awaitPress());
   }
 
+  void _subscribe() {
+    _subscription = userAccelerometerEvents.listen(
+      (event) => add(_AccelEvent(event)),
+    );
+  }
+
   FutureOr<void> _scanQr(
     ScanQrEvent event,
     Emitter<MisfortuneState> emit,
   ) {
-    _subscription = userAccelerometerEvents.listen(
-      (event) => add(_AccelEvent(event)),
-    );
+    _subscribe();
     emit(state.awaitSpin(tooSlow: false, speed: null, code: event.code));
   }
 
