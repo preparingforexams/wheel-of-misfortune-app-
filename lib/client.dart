@@ -17,12 +17,14 @@ class HttpMisfortuneClient implements MisfortuneClient {
       ),
       headers: {"Authorization": "Bearer $code"},
     );
-    if (response.statusCode == 204) {
+
+    final statusCode = response.statusCode;
+    if (statusCode == 204) {
       return true;
-    } else if (response.statusCode == 409) {
+    } else if (statusCode == 409 || statusCode == 403) {
       return false;
     } else {
-      throw Exception("Error response ${response.statusCode}");
+      throw Exception("Error response $statusCode");
     }
   }
 }
