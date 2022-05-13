@@ -146,6 +146,9 @@ class MisfortuneBloc extends Bloc<_MisfortuneEvent, MisfortuneState> {
     _AccelEvent event,
     Emitter<MisfortuneState> emit,
   ) async {
+    if (state.stage != Stage.awaitingSpin) {
+      return;
+    }
     final accel = event.event;
     final length = norm(
       x: accel.x,
@@ -157,13 +160,13 @@ class MisfortuneBloc extends Bloc<_MisfortuneEvent, MisfortuneState> {
       }
       return;
     }
-    _subscription?.cancel();
     final result = await _client.spin(code: state.code!, speed: length);
     if (result) {
       emit(state.spinning(length));
     } else {
       emit(state.failed(length));
     }
+    _subscription?.cancel();
     await Future.delayed(const Duration(seconds: 5));
     emit(state.awaitPress());
   }
