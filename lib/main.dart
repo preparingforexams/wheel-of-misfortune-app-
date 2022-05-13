@@ -56,16 +56,19 @@ class MainPage extends StatelessWidget {
           child: SpinContent(),
         ),
       ),
-      bottomNavigationBar: Center(
-        child: BlocBuilder<MisfortuneBloc, MisfortuneState>(
-          builder: (context, state) {
-            final movement = state.movement;
-            if (movement == null) {
-              return const Offstage();
-            } else {
-              return Text(movement);
-            }
-          },
+      bottomNavigationBar: SizedBox(
+        height: 20,
+        child: Center(
+          child: BlocBuilder<MisfortuneBloc, MisfortuneState>(
+            builder: (context, state) {
+              final movement = state.movement;
+              if (movement == null) {
+                return const Offstage();
+              } else {
+                return Text(movement);
+              }
+            },
+          ),
         ),
       ),
     );
@@ -83,11 +86,18 @@ class SpinContent extends StatelessWidget {
         switch (state.stage) {
           case Stage.awaitingPress:
             return ElevatedButton(
+              style: ButtonStyle(
+                padding: MaterialStateProperty.all(const EdgeInsets.all(25)),
+              ),
               onPressed: () => bloc.add(SubscribeEvent()),
-              child: const Text("Ich habe Durst"),
+              child: Text(
+                "Ich habe Durst",
+                style: DefaultTextStyle.of(context).style,
+              ),
             );
           case Stage.awaitingSpin:
             return Column(
+              mainAxisSize: MainAxisSize.min,
               children: [
                 const Text("Dreh das Rad!"),
                 if (state.tooSlow) const Text("Schneller!")
