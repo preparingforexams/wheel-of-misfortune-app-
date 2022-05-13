@@ -64,12 +64,14 @@ class MainPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: const Center(
+      body: const Padding(
+        padding: EdgeInsets.symmetric(horizontal: 10),
+        child:Center(
         child: DefaultTextStyle(
           style: TextStyle(fontSize: 48),
           child: SpinContent(),
         ),
-      ),
+      ),),
       bottomNavigationBar: SizedBox(
         height: 20,
         child: Center(
