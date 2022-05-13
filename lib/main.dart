@@ -145,6 +145,11 @@ class _QrScannerState extends State<QrScanner> {
     final bloc = BlocProvider.of<MisfortuneBloc>(context);
     return MobileScanner(
       onDetect: (barcode, args) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text("Found QR code! (type ${barcode.type})"),
+          ),
+        );
         if (barcode.type == BarcodeType.url) {
           final url = barcode.url?.url;
           if (url == null) {

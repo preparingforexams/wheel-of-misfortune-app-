@@ -138,9 +138,11 @@ packages:
   mobile_scanner:
     dependency: "direct main"
     description:
-      name: mobile_scanner
-      url: "https://pub.dartlang.org"
-    source: hosted
+      path: "."
+      ref: HEAD
+      resolved-ref: fe88e168d1055a528e582c688eb15d86b5f296bf
+      url: "https://github.com/juliansteenbakker/mobile_scanner.git"
+    source: git
     version: "1.0.0"
   nested:
     dependency: transitive
