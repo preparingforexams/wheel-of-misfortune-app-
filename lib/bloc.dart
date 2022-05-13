@@ -33,12 +33,11 @@ class MisfortuneState {
 
   MisfortuneState.initial() : this._(stage: Stage.awaitingPress);
 
-  MisfortuneState spinning() {
-    return const MisfortuneState._(stage: Stage.spinning);
-  }
-
-  MisfortuneState failed() {
-    return const MisfortuneState._(stage: Stage.failed);
+  MisfortuneState failed(double speed) {
+    return MisfortuneState._(
+      stage: Stage.failed,
+      movement: speed.toString(),
+    );
   }
 
   MisfortuneState awaitPress() {
@@ -49,9 +48,9 @@ class MisfortuneState {
     return const MisfortuneState._(stage: Stage.awaitingSpin);
   }
 
-  MisfortuneState moved(double speed) {
+  MisfortuneState spinning(double speed) {
     return MisfortuneState._(
-      stage: stage,
+      stage: Stage.spinning,
       movement: speed.toString(),
     );
   }
@@ -66,17 +65,6 @@ class MisfortuneBloc extends Bloc<_MisfortuneEvent, MisfortuneState> {
     on<SubscribeEvent>(_sub);
   }
 
-  FutureOr<void> _spin(
-    Emitter<MisfortuneState> emit
-  ) async {
-    final result = await _client.spin();
-    if (result) {
-     emit(state.spinning());
-    } else {
-      emit(state.failed());
-    }
-  }
-
   double norm(double a, double b, double c) {
     return sqrt(pow(a, 2) + pow(b, 2) + pow(c, 2));
   }
@@ -88,10 +76,14 @@ class MisfortuneBloc extends Bloc<_MisfortuneEvent, MisfortuneState> {
     final accel = event.event;
     final length = norm(accel.x, accel.y, accel.z);
     _subscription?.cancel();
-    emit(state.moved(length));
-    await _spin(emit);
-    await Future.delayed(const Duration(seconds: 3));
-    //emit(state.awaitSpin());
+    final result = await _client.spin();
+    if (result) {
+      emit(state.spinning(length));
+    } else {
+      emit(state.failed(length));
+    }
+    await Future.delayed(const Duration(seconds: 5));
+    emit(state.awaitSpin());
   }
 
   FutureOr<void> _sub(
