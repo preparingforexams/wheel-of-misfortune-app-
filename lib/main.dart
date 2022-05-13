@@ -68,7 +68,8 @@ class SpinContent extends StatelessWidget {
           case Stage.awaitingSpin:
             return const Text("Spin the wheel!");
           default:
-            return Text("Stage: ${state.stage}, movement: ${state.movement}");
+            return Text(
+                "Stage: ${state.stage}, axes: ${state.axes}, movement: ${state.movement}");
         }
       },
     );

@@ -24,18 +24,21 @@ enum Stage {
 
 class MisfortuneState {
   final Stage stage;
+  final String? axes;
   final String? movement;
 
   const MisfortuneState._({
     required this.stage,
+    this.axes,
     this.movement,
   });
 
   MisfortuneState.initial() : this._(stage: Stage.awaitingPress);
 
-  MisfortuneState failed(double speed) {
+  MisfortuneState failed(String axes, double speed) {
     return MisfortuneState._(
       stage: Stage.failed,
+      axes: axes,
       movement: speed.toString(),
     );
   }
@@ -48,9 +51,10 @@ class MisfortuneState {
     return const MisfortuneState._(stage: Stage.awaitingSpin);
   }
 
-  MisfortuneState spinning(double speed) {
+  MisfortuneState spinning(String axes, double speed) {
     return MisfortuneState._(
       stage: Stage.spinning,
+      axes: axes,
       movement: speed.toString(),
     );
   }
@@ -75,15 +79,19 @@ class MisfortuneBloc extends Bloc<_MisfortuneEvent, MisfortuneState> {
   ) async {
     final accel = event.event;
     final length = norm(accel.x, accel.y, accel.z);
+    if (length == 0) {
+      return;
+    }
     _subscription?.cancel();
     final result = await _client.spin();
+    final axes = "${accel.x} ${accel.y} ${accel.z}";
     if (result) {
-      emit(state.spinning(length));
+      emit(state.spinning(axes, length));
     } else {
-      emit(state.failed(length));
+      emit(state.failed(axes, length));
     }
-    await Future.delayed(const Duration(seconds: 5));
-    emit(state.awaitSpin());
+    await Future.delayed(const Duration(seconds: 3));
+    add(SubscribeEvent());
   }
 
   FutureOr<void> _sub(
