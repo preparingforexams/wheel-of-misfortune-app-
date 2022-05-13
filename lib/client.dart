@@ -1,15 +1,20 @@
 import 'package:http/http.dart' as http;
 
 abstract class MisfortuneClient {
-  Future<bool> spin();
+  Future<bool> spin({required String code, required double speed});
 }
 
 class HttpMisfortuneClient implements MisfortuneClient {
-  static const _kBaseUrl = "https://api.bembel.party";
-
   @override
-  Future<bool> spin() async {
-    final response = await http.post(Uri.parse("$_kBaseUrl/spin"));
+  Future<bool> spin({required String code, required double speed}) async {
+    final response = await http.post(Uri.https(
+      "api.bembel.party",
+      "spin",
+      {
+        "code": code,
+        "speed": speed,
+      },
+    ));
     if (response.statusCode == 204) {
       return true;
     } else if (response.statusCode == 409) {

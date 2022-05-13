@@ -7,7 +7,13 @@ import 'package:sensors_plus/sensors_plus.dart';
 
 abstract class _MisfortuneEvent {}
 
-class SubscribeEvent implements _MisfortuneEvent {}
+class PressButtonEvent implements _MisfortuneEvent {}
+
+class ScanQrEvent implements _MisfortuneEvent {
+  final String code;
+
+  ScanQrEvent(this.code);
+}
 
 class _AccelEvent implements _MisfortuneEvent {
   final UserAccelerometerEvent event;
@@ -17,6 +23,7 @@ class _AccelEvent implements _MisfortuneEvent {
 
 enum Stage {
   awaitingPress,
+  scanningCode,
   awaitingSpin,
   spinning,
   failed,
@@ -26,11 +33,13 @@ class MisfortuneState {
   final Stage stage;
   final bool tooSlow;
   final String? movement;
+  final String? code;
 
   const MisfortuneState._({
     required this.stage,
     required this.tooSlow,
     this.movement,
+    this.code,
   });
 
   MisfortuneState.initial()
@@ -39,37 +48,66 @@ class MisfortuneState {
           tooSlow: false,
         );
 
-  MisfortuneState failed(double speed) {
+  MisfortuneState copy({
+    Stage? stage,
+    bool? tooSlow,
+    required String? movement,
+    required String? code,
+  }) {
     return MisfortuneState._(
+      stage: stage ?? this.stage,
+      tooSlow: tooSlow ?? this.tooSlow,
+      movement: movement,
+      code: code,
+    );
+  }
+
+  MisfortuneState failed(double speed) {
+    return copy(
       stage: Stage.failed,
       tooSlow: false,
       movement: speed.toString(),
+      code: null,
     );
   }
 
   MisfortuneState awaitPress() {
-    return const MisfortuneState._(
+    return copy(
       stage: Stage.awaitingPress,
       tooSlow: false,
+      movement: null,
+      code: null,
+    );
+  }
+
+  MisfortuneState awaitCode() {
+    return const MisfortuneState._(
+      stage: Stage.scanningCode,
+      tooSlow: false,
+      code: null,
+      movement: null,
     );
   }
 
   MisfortuneState awaitSpin({
     required bool tooSlow,
     required double? speed,
+    String? code,
   }) {
-    return MisfortuneState._(
+    return copy(
       stage: Stage.awaitingSpin,
       tooSlow: tooSlow,
       movement: speed?.toString(),
+      code: code ?? code,
     );
   }
 
   MisfortuneState spinning(double speed) {
-    return MisfortuneState._(
+    return copy(
       stage: Stage.spinning,
       tooSlow: false,
       movement: speed.toString(),
+      code: code,
     );
   }
 }
@@ -80,7 +118,8 @@ class MisfortuneBloc extends Bloc<_MisfortuneEvent, MisfortuneState> {
 
   MisfortuneBloc(this._client) : super(MisfortuneState.initial()) {
     on<_AccelEvent>(_accel);
-    on<SubscribeEvent>(_sub);
+    on<PressButtonEvent>(_pressButton);
+    on<ScanQrEvent>(_scanQr);
   }
 
   double norm({required double x, required double y}) {
@@ -101,7 +140,7 @@ class MisfortuneBloc extends Bloc<_MisfortuneEvent, MisfortuneState> {
       return;
     }
     _subscription?.cancel();
-    final result = await _client.spin();
+    final result = await _client.spin(code: state.code!, speed: length);
     if (result) {
       emit(state.spinning(length));
     } else {
@@ -111,13 +150,20 @@ class MisfortuneBloc extends Bloc<_MisfortuneEvent, MisfortuneState> {
     emit(state.awaitPress());
   }
 
-  FutureOr<void> _sub(
-    SubscribeEvent event,
+  FutureOr<void> _scanQr(
+    ScanQrEvent event,
     Emitter<MisfortuneState> emit,
   ) {
     _subscription = userAccelerometerEvents.listen(
       (event) => add(_AccelEvent(event)),
     );
-    emit(state.awaitSpin(tooSlow: false, speed: null));
+    emit(state.awaitSpin(tooSlow: false, speed: null, code: event.code));
+  }
+
+  FutureOr<void> _pressButton(
+    PressButtonEvent event,
+    Emitter<MisfortuneState> emit,
+  ) {
+    emit(state.awaitCode());
   }
 }

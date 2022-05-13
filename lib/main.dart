@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:misfortune_app/bloc.dart';
 import 'package:misfortune_app/client.dart';
+import 'package:mobile_scanner/mobile_scanner.dart';
 
 void main() {
   runApp(const MyApp());
@@ -89,12 +90,14 @@ class SpinContent extends StatelessWidget {
               style: ButtonStyle(
                 padding: MaterialStateProperty.all(const EdgeInsets.all(25)),
               ),
-              onPressed: () => bloc.add(SubscribeEvent()),
+              onPressed: () => bloc.add(PressButtonEvent()),
               child: Text(
                 "Ich habe Durst",
                 style: DefaultTextStyle.of(context).style,
               ),
             );
+          case Stage.scanningCode:
+            return QrScanner();
           case Stage.awaitingSpin:
             return Column(
               mainAxisSize: MainAxisSize.min,
@@ -109,6 +112,53 @@ class SpinContent extends StatelessWidget {
             return const Text("Prost!");
         }
       },
+    );
+  }
+}
+
+class QrScanner extends StatefulWidget {
+  const QrScanner({Key? key}) : super(key: key);
+
+  @override
+  State<QrScanner> createState() => _QrScannerState();
+}
+
+class _QrScannerState extends State<QrScanner> {
+  late final MobileScannerController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = MobileScannerController();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final bloc = BlocProvider.of<MisfortuneBloc>(context);
+    return MobileScanner(
+      onDetect: (barcode, args) {
+        if (barcode.type == BarcodeType.url) {
+          final url = barcode.url?.url;
+          if (url == null) {
+            return;
+          }
+
+          if (url.startsWith("https://bembel.party")) {
+            final uri = Uri.parse(url);
+            final code = uri.queryParameters["code"];
+            if (code != null) {
+              bloc.add(ScanQrEvent(code));
+            }
+          }
+        }
+      },
+      controller: _controller,
     );
   }
 }
