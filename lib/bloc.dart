@@ -174,7 +174,7 @@ class MisfortuneBloc extends Bloc<_MisfortuneEvent, MisfortuneState> {
       emit(state.failed(length, "code is null"));
     } else {
       try {
-        final result = await _client.spin(code: state.code!, speed: length);
+        final result = await _client.spin(code: code, speed: length);
         if (result) {
           emit(state.spinning(length));
         } else {
