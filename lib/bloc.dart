@@ -151,7 +151,7 @@ class MisfortuneBloc extends Bloc<_MisfortuneEvent, MisfortuneState> {
       x: accel.x,
       y: accel.y,
     );
-    if (length < 20) {
+    if (length < 15) {
       if (length > 5) {
         emit(state.awaitSpin(tooSlow: true, speed: length));
       }
