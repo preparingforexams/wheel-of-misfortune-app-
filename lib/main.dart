@@ -5,12 +5,16 @@ import 'package:misfortune_app/client.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 
 void main() {
-  runApp(const MyApp( code:Uri.base.queryParameters["code"]));
+  runApp(MyApp(code: Uri.base.queryParameters["code"]));
 }
 
 class MyApp extends StatelessWidget {
   final String? code;
-  const MyApp({Key? key, required this. code,}) : super(key: key);
+
+  const MyApp({
+    Key? key,
+    required this.code,
+  }) : super(key: key);
 
   // This widget is the root of your application.
   @override
@@ -29,19 +33,26 @@ class MyApp extends StatelessWidget {
         // is not restarted.
         primarySwatch: Colors.blue,
       ),
-      home: const BlocPage(code:code),
+      home: BlocPage(code: code),
     );
   }
 }
 
 class BlocPage extends StatelessWidget {
   final String? code;
-  const BlocPage ({Key? key, required this. code,}) : super(key: key);
+
+  const BlocPage({
+    Key? key,
+    required this.code,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return BlocProvider<MisfortuneBloc>(
-      create: (context) => MisfortuneBloc(client:HttpMisfortuneClient(), code:code,),
+      create: (context) => MisfortuneBloc(
+        client: HttpMisfortuneClient(),
+        code: code,
+      ),
       child: const MainPage(),
     );
   }
@@ -99,7 +110,7 @@ class SpinContent extends StatelessWidget {
               ),
             );
           case Stage.scanningCode:
-            return QrScanner();
+            return const QrScanner();
           case Stage.awaitingSpin:
             return Column(
               mainAxisSize: MainAxisSize.min,
@@ -152,18 +163,33 @@ class _QrScannerState extends State<QrScanner> {
             content: Text("Found QR code! (type ${barcode.type})"),
           ),
         );
+
+        final String url;
         if (barcode.type == BarcodeType.url) {
-          final url = barcode.url?.url;
-          if (url == null) {
+          final rawUrl = barcode.url?.url;
+          if (rawUrl == null) {
             return;
           }
+          url = rawUrl;
+        } else if (barcode.type == BarcodeType.text) {
+          final rawValue = barcode.rawValue;
+          if (rawValue == null) {
+            return;
+          }
+          url = rawValue;
+        } else {
+          return;
+        }
 
-          if (url.startsWith("https://bembel.party")) {
-            final uri = Uri.parse(url);
-            final code = uri.queryParameters["code"];
-            if (code != null) {
-              bloc.add(ScanQrEvent(code));
-            }
+        final uri = Uri.tryParse(url);
+        if (uri == null) {
+          return;
+        }
+
+        if (uri.authority == "bembel.party") {
+          final code = uri.queryParameters["code"];
+          if (code != null) {
+            bloc.add(ScanQrEvent(code));
           }
         }
       },
