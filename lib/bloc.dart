@@ -79,7 +79,7 @@ class MisfortuneBloc extends Bloc<_MisfortuneEvent, MisfortuneState> {
   ) async {
     final accel = event.event;
     final length = norm(accel.x, accel.y, accel.z);
-    if (length == 0) {
+    if (length < 10) {
       return;
     }
     _subscription?.cancel();
