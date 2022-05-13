@@ -120,7 +120,7 @@ class SpinContent extends StatelessWidget {
               ],
             );
           case Stage.failed:
-            return const Text("Konnte das Rad nicht drehen ð");
+            return Text("Konnte das Rad nicht drehen ð (${state.error})");
           case Stage.spinning:
             return const Text("Prost!");
         }

@@ -34,12 +34,14 @@ class MisfortuneState {
   final bool tooSlow;
   final String? movement;
   final String? code;
+  final String? error;
 
   const MisfortuneState._({
     required this.stage,
     required this.tooSlow,
     this.movement,
     this.code,
+    this.error,
   });
 
   factory MisfortuneState.initial(String? code) {
@@ -62,21 +64,24 @@ class MisfortuneState {
     bool? tooSlow,
     required String? movement,
     required String? code,
+    required String? error,
   }) {
     return MisfortuneState._(
       stage: stage ?? this.stage,
       tooSlow: tooSlow ?? this.tooSlow,
       movement: movement,
       code: code,
+      error: error,
     );
   }
 
-  MisfortuneState failed(double speed) {
+  MisfortuneState failed(double speed, String error) {
     return copy(
       stage: Stage.failed,
       tooSlow: false,
       movement: speed.toString(),
       code: null,
+      error: error,
     );
   }
 
@@ -86,6 +91,7 @@ class MisfortuneState {
       tooSlow: false,
       movement: null,
       code: null,
+      error: null,
     );
   }
 
@@ -108,6 +114,7 @@ class MisfortuneState {
       tooSlow: tooSlow,
       movement: speed?.toString(),
       code: code ?? this.code,
+      error: null,
     );
   }
 
@@ -117,6 +124,7 @@ class MisfortuneState {
       tooSlow: false,
       movement: speed.toString(),
       code: code,
+      error: null,
     );
   }
 }
@@ -160,12 +168,18 @@ class MisfortuneBloc extends Bloc<_MisfortuneEvent, MisfortuneState> {
       }
       return;
     }
-    final result = await _client.spin(code: state.code!, speed: length);
-    if (result) {
-      emit(state.spinning(length));
-    } else {
-      emit(state.failed(length));
+
+    try {
+      final result = await _client.spin(code: state.code!, speed: length);
+      if (result) {
+        emit(state.spinning(length));
+      } else {
+        emit(state.failed(length, "Somebody else spun"));
+      }
+    } on Exception catch (e) {
+      emit(state.failed(length, e.toString()));
     }
+
     _subscription?.cancel();
     await Future.delayed(const Duration(seconds: 5));
     emit(state.awaitPress());
