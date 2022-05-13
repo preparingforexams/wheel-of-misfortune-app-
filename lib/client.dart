@@ -7,14 +7,16 @@ abstract class MisfortuneClient {
 class HttpMisfortuneClient implements MisfortuneClient {
   @override
   Future<bool> spin({required String code, required double speed}) async {
-    final response = await http.post(Uri.https(
-      "api.bembel.party",
-      "spin",
-      {
-        "code": code,
-        "speed": speed,
-      },
-    ));
+    final response = await http.post(
+      Uri.https(
+        "api.bembel.party",
+        "spin",
+        {
+          "speed": speed,
+        },
+      ),
+      headers: {"Authorization": "Bearer $code"},
+    );
     if (response.statusCode == 204) {
       return true;
     } else if (response.statusCode == 409) {
