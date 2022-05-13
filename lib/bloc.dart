@@ -169,15 +169,20 @@ class MisfortuneBloc extends Bloc<_MisfortuneEvent, MisfortuneState> {
       return;
     }
 
-    try {
-      final result = await _client.spin(code: state.code!, speed: length);
-      if (result) {
-        emit(state.spinning(length));
-      } else {
-        emit(state.failed(length, "Somebody else spun"));
+    final code = state.code;
+    if (code == null) {
+      emit(state.failed(length, "code is null"));
+    } else {
+      try {
+        final result = await _client.spin(code: state.code!, speed: length);
+        if (result) {
+          emit(state.spinning(length));
+        } else {
+          emit(state.failed(length, "Somebody else spun"));
+        }
+      } on Exception catch (e) {
+        emit(state.failed(length, e.toString()));
       }
-    } on Exception catch (e) {
-      emit(state.failed(length, e.toString()));
     }
 
     _subscription?.cancel();
