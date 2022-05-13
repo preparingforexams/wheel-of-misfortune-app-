@@ -24,37 +24,51 @@ enum Stage {
 
 class MisfortuneState {
   final Stage stage;
-  final String? axes;
+  final bool tooSlow;
   final String? movement;
 
   const MisfortuneState._({
     required this.stage,
-    this.axes,
+    required this.tooSlow,
     this.movement,
   });
 
-  MisfortuneState.initial() : this._(stage: Stage.awaitingPress);
+  MisfortuneState.initial()
+      : this._(
+          stage: Stage.awaitingPress,
+          tooSlow: false,
+        );
 
-  MisfortuneState failed(String axes, double speed) {
+  MisfortuneState failed(double speed) {
     return MisfortuneState._(
       stage: Stage.failed,
-      axes: axes,
+      tooSlow: false,
       movement: speed.toString(),
     );
   }
 
   MisfortuneState awaitPress() {
-    return const MisfortuneState._(stage: Stage.awaitingPress);
+    return const MisfortuneState._(
+      stage: Stage.awaitingPress,
+      tooSlow: false,
+    );
   }
 
-  MisfortuneState awaitSpin() {
-    return const MisfortuneState._(stage: Stage.awaitingSpin);
+  MisfortuneState awaitSpin({
+    required bool tooSlow,
+    required double? speed,
+  }) {
+    return MisfortuneState._(
+      stage: Stage.awaitingSpin,
+      tooSlow: tooSlow,
+      movement: speed?.toString(),
+    );
   }
 
-  MisfortuneState spinning(String axes, double speed) {
+  MisfortuneState spinning(double speed) {
     return MisfortuneState._(
       stage: Stage.spinning,
-      axes: axes,
+      tooSlow: false,
       movement: speed.toString(),
     );
   }
@@ -69,8 +83,8 @@ class MisfortuneBloc extends Bloc<_MisfortuneEvent, MisfortuneState> {
     on<SubscribeEvent>(_sub);
   }
 
-  double norm(double a, double b, double c) {
-    return sqrt(pow(a, 2) + pow(b, 2) + pow(c, 2));
+  double norm({required double x, required double y}) {
+    return sqrt(pow(x, 2) + pow(y, 2));
   }
 
   FutureOr<void> _accel(
@@ -78,20 +92,23 @@ class MisfortuneBloc extends Bloc<_MisfortuneEvent, MisfortuneState> {
     Emitter<MisfortuneState> emit,
   ) async {
     final accel = event.event;
-    final length = norm(accel.x, accel.y, accel.z);
-    if (length < 10) {
+    final length = norm(
+      x: accel.x,
+      y: accel.y,
+    );
+    if (length < 20) {
+      emit(state.awaitSpin(tooSlow: true, speed: length));
       return;
     }
     _subscription?.cancel();
     final result = await _client.spin();
-    final axes = "${accel.x} ${accel.y} ${accel.z}";
     if (result) {
-      emit(state.spinning(axes, length));
+      emit(state.spinning(length));
     } else {
-      emit(state.failed(axes, length));
+      emit(state.failed(length));
     }
-    await Future.delayed(const Duration(seconds: 3));
-    add(SubscribeEvent());
+    await Future.delayed(const Duration(seconds: 5));
+    emit(state.awaitPress());
   }
 
   FutureOr<void> _sub(
@@ -101,6 +118,6 @@ class MisfortuneBloc extends Bloc<_MisfortuneEvent, MisfortuneState> {
     _subscription = userAccelerometerEvents.listen(
       (event) => add(_AccelEvent(event)),
     );
-    emit(state.awaitSpin());
+    emit(state.awaitSpin(tooSlow: false, speed: null));
   }
 }

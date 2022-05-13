@@ -39,12 +39,33 @@ class BlocPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocProvider<MisfortuneBloc>(
       create: (context) => MisfortuneBloc(HttpMisfortuneClient()),
-      child: const Scaffold(
-        body: Center(
-          child: DefaultTextStyle(
-            style: TextStyle(fontSize: 48),
-            child: SpinContent(),
-          ),
+      child: const MainPage(),
+    );
+  }
+}
+
+class MainPage extends StatelessWidget {
+  const MainPage({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: const Center(
+        child: DefaultTextStyle(
+          style: TextStyle(fontSize: 48),
+          child: SpinContent(),
+        ),
+      ),
+      bottomNavigationBar: Center(
+        child: BlocBuilder<MisfortuneBloc, MisfortuneState>(
+          builder: (context, state) {
+            final movement = state.movement;
+            if (movement == null) {
+              return const Offstage();
+            } else {
+              return Text(movement);
+            }
+          },
         ),
       ),
     );
@@ -63,13 +84,19 @@ class SpinContent extends StatelessWidget {
           case Stage.awaitingPress:
             return ElevatedButton(
               onPressed: () => bloc.add(SubscribeEvent()),
-              child: const Text("Let's go!"),
+              child: const Text("Ich habe Durst"),
             );
           case Stage.awaitingSpin:
-            return const Text("Spin the wheel!");
-          default:
-            return Text(
-                "Stage: ${state.stage}, axes: ${state.axes}, movement: ${state.movement}");
+            return Column(
+              children: [
+                const Text("Dreh das Rad!"),
+                if (state.tooSlow) const Text("Schneller!")
+              ],
+            );
+          case Stage.failed:
+            return const Text("Konnte das Rad nicht drehen ð");
+          case Stage.spinning:
+            return const Text("Prost!");
         }
       },
     );
