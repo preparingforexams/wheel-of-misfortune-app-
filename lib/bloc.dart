@@ -42,11 +42,20 @@ class MisfortuneState {
     this.code,
   });
 
-  MisfortuneState.initial()
-      : this._(
-          stage: Stage.awaitingPress,
-          tooSlow: false,
-        );
+  factory MisfortuneState.initial(String? code) {
+    if (code == null) {
+      return const MisfortuneState._(
+        stage: Stage.awaitingPress,
+        tooSlow: false,
+      );
+    } else {
+      return MisfortuneState._(
+        stage: Stage.awaitingSpin,
+        tooSlow: false,
+        code: code,
+      );
+    }
+  }
 
   MisfortuneState copy({
     Stage? stage,
@@ -116,7 +125,11 @@ class MisfortuneBloc extends Bloc<_MisfortuneEvent, MisfortuneState> {
   final MisfortuneClient _client;
   StreamSubscription? _subscription;
 
-  MisfortuneBloc(this._client) : super(MisfortuneState.initial()) {
+  MisfortuneBloc({
+    required MisfortuneClient client,
+    required String? code,
+  })  : _client = client,
+        super(MisfortuneState.initial(code)) {
     on<_AccelEvent>(_accel);
     on<PressButtonEvent>(_pressButton);
     on<ScanQrEvent>(_scanQr);

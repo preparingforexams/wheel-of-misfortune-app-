@@ -5,11 +5,12 @@ import 'package:misfortune_app/client.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 
 void main() {
-  runApp(const MyApp());
+  runApp(const MyApp( code:Uri.base.queryParameters["code"]));
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({Key? key}) : super(key: key);
+  final String? code;
+  const MyApp({Key? key, required this. code,}) : super(key: key);
 
   // This widget is the root of your application.
   @override
@@ -28,18 +29,19 @@ class MyApp extends StatelessWidget {
         // is not restarted.
         primarySwatch: Colors.blue,
       ),
-      home: const BlocPage(),
+      home: const BlocPage(code:code),
     );
   }
 }
 
 class BlocPage extends StatelessWidget {
-  const BlocPage({Key? key}) : super(key: key);
+  final String? code;
+  const BlocPage ({Key? key, required this. code,}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return BlocProvider<MisfortuneBloc>(
-      create: (context) => MisfortuneBloc(HttpMisfortuneClient()),
+      create: (context) => MisfortuneBloc(client:HttpMisfortuneClient(), code:code,),
       child: const MainPage(),
     );
   }
