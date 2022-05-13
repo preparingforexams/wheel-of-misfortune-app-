@@ -35,6 +35,7 @@ dependencies:
     git: https://github.com/juliansteenbakker/mobile_scanner.git
   provider: ^6.0.0
   sensors_plus: ^1.0.0
+  web_browser_detect: ^2.0.0
 
 dev_dependencies:
   flutter_test:

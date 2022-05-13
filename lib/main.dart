@@ -98,6 +98,10 @@ class SpinContent extends StatelessWidget {
       builder: (context, state) {
         final bloc = BlocProvider.of<MisfortuneBloc>(context);
         switch (state.stage) {
+          case Stage.wrongBrowser:
+            return const Text(
+              "Leider funktioniert diese Webseite nur in Google Chrome",
+            );
           case Stage.awaitingPress:
             return ElevatedButton(
               style: ButtonStyle(

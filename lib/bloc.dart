@@ -4,6 +4,7 @@ import 'dart:math';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:misfortune_app/client.dart';
 import 'package:sensors_plus/sensors_plus.dart';
+import 'package:web_browser_detect/web_browser_detect.dart';
 
 abstract class _MisfortuneEvent {}
 
@@ -22,6 +23,7 @@ class _AccelEvent implements _MisfortuneEvent {
 }
 
 enum Stage {
+  wrongBrowser,
   awaitingPress,
   scanningCode,
   awaitingSpin,
@@ -127,6 +129,14 @@ class MisfortuneState {
       error: null,
     );
   }
+
+  MisfortuneState wrongBrowser() {
+    return const MisfortuneState._(
+      stage: Stage.wrongBrowser,
+      tooSlow: false,
+      movement: null,
+    );
+  }
 }
 
 class MisfortuneBloc extends Bloc<_MisfortuneEvent, MisfortuneState> {
@@ -144,6 +154,15 @@ class MisfortuneBloc extends Bloc<_MisfortuneEvent, MisfortuneState> {
     on<_AccelEvent>(_accel);
     on<PressButtonEvent>(_pressButton);
     on<ScanQrEvent>(_scanQr);
+
+    final browser = Browser();
+    if (![
+      BrowserAgent.Chrome,
+      BrowserAgent.EdgeChromium,
+      BrowserAgent.Safari,
+    ].contains(browser.browserAgent)) {
+      emit(state.wrongBrowser());
+    }
   }
 
   double norm({required double x, required double y}) {
