@@ -107,7 +107,7 @@ class MisfortuneState {
       stage: Stage.awaitingSpin,
       tooSlow: tooSlow,
       movement: speed?.toString(),
-      code: code ?? code,
+      code: code ?? this.code,
     );
   }
 
@@ -152,7 +152,9 @@ class MisfortuneBloc extends Bloc<_MisfortuneEvent, MisfortuneState> {
       y: accel.y,
     );
     if (length < 20) {
-      if (length > 5) emit(state.awaitSpin(tooSlow: true, speed: length));
+      if (length > 5) {
+        emit(state.awaitSpin(tooSlow: true, speed: length));
+      }
       return;
     }
     _subscription?.cancel();
