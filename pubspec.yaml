@@ -31,7 +31,8 @@ dependencies:
     sdk: flutter
   flutter_bloc: ^8.0.0
   http: ^0.13.0
-  mobile_scanner: ^1.0.0
+  mobile_scanner:
+    git: https://github.com/juliansteenbakker/mobile_scanner.git
   provider: ^6.0.0
   sensors_plus: ^1.0.0
 
