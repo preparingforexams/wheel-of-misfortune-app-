@@ -7,6 +7,6 @@ COPY . .
 RUN flutter pub get
 RUN flutter build web --release
 
-FROM nginx:1.21-alpine
+FROM nginx:1.22-alpine
 
 COPY --from=builder /app/build/web /usr/share/nginx/html
