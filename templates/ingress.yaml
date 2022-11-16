@@ -3,7 +3,7 @@ kind: Ingress
 metadata:
   name: app
   annotations:
-    cert-manager.io/cluster-issuer: letsencrypt-bembel
+    cert-manager.io/cluster-issuer: letsencrypt-born
 spec:
   rules:
     - host: bembel.party
