@@ -22,6 +22,8 @@ class _AccelEvent implements _MisfortuneEvent {
   _AccelEvent(this.event);
 }
 
+class _WrongBrowserEvent implements _MisfortuneEvent {}
+
 enum Stage {
   wrongBrowser,
   awaitingPress,
@@ -154,6 +156,7 @@ class MisfortuneBloc extends Bloc<_MisfortuneEvent, MisfortuneState> {
     on<_AccelEvent>(_accel);
     on<PressButtonEvent>(_pressButton);
     on<ScanQrEvent>(_scanQr);
+    on<_WrongBrowserEvent>(_wrongBrowser);
 
     final browser = Browser();
     if (![
@@ -161,7 +164,7 @@ class MisfortuneBloc extends Bloc<_MisfortuneEvent, MisfortuneState> {
       BrowserAgent.EdgeChromium,
       BrowserAgent.Safari,
     ].contains(browser.browserAgent)) {
-      emit(state.wrongBrowser());
+      add(_WrongBrowserEvent());
     }
   }
 
@@ -223,5 +226,12 @@ class MisfortuneBloc extends Bloc<_MisfortuneEvent, MisfortuneState> {
     Emitter<MisfortuneState> emit,
   ) {
     emit(state.awaitCode());
+  }
+
+  FutureOr<void> _wrongBrowser(
+    _WrongBrowserEvent event,
+    Emitter<MisfortuneState> emit,
+  ) {
+    emit(state.wrongBrowser());
   }
 }
