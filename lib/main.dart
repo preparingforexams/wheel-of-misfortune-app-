@@ -66,12 +66,13 @@ class MainPage extends StatelessWidget {
     return Scaffold(
       body: const Padding(
         padding: EdgeInsets.symmetric(horizontal: 10),
-        child:Center(
-        child: DefaultTextStyle(
-          style: TextStyle(fontSize: 48),
-          child: SpinContent(),
+        child: Center(
+          child: DefaultTextStyle(
+            style: TextStyle(fontSize: 48),
+            child: SpinContent(),
+          ),
         ),
-      ),),
+      ),
       bottomNavigationBar: SizedBox(
         height: 20,
         child: Center(
@@ -163,8 +164,9 @@ class _QrScannerState extends State<QrScanner> {
   Widget build(BuildContext context) {
     final bloc = BlocProvider.of<MisfortuneBloc>(context);
     return MobileScanner(
-      onDetect: (barcode, args) {
+      onDetect: (barcodeCapture) {
         final String url;
+        final barcode = barcodeCapture.barcodes[0];
         if (barcode.type == BarcodeType.url) {
           final rawUrl = barcode.url?.url;
           if (rawUrl == null) {
