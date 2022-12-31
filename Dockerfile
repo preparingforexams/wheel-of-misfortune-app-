@@ -1,4 +1,4 @@
-FROM cirrusci/flutter:2.13.0-0.4.pre AS builder
+FROM cirrusci/flutter:3.3.10 AS builder
 
 WORKDIR /app
 
