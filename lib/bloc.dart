@@ -8,12 +8,18 @@ import 'package:web_browser_detect/web_browser_detect.dart';
 
 abstract class _MisfortuneEvent {}
 
-class PressButtonEvent implements _MisfortuneEvent {}
+class PressButtonEvent implements _MisfortuneEvent {
+  const PressButtonEvent();
+}
 
 class ScanQrEvent implements _MisfortuneEvent {
   final String code;
 
   ScanQrEvent(this.code);
+}
+
+class PermissionGrantedEvent implements _MisfortuneEvent {
+  const PermissionGrantedEvent();
 }
 
 class _AccelEvent implements _MisfortuneEvent {
@@ -22,10 +28,9 @@ class _AccelEvent implements _MisfortuneEvent {
   _AccelEvent(this.event);
 }
 
-class _WrongBrowserEvent implements _MisfortuneEvent {}
-
 enum Stage {
   wrongBrowser,
+  awaitingPermissions,
   awaitingPress,
   scanningCode,
   awaitingSpin,
@@ -49,7 +54,26 @@ class MisfortuneState {
   });
 
   factory MisfortuneState.initial(String? code) {
-    if (code == null) {
+    final browser = Browser();
+    if (![
+      BrowserAgent.Chrome,
+      BrowserAgent.EdgeChromium,
+      BrowserAgent.Safari,
+    ].contains(browser.browserAgent)) {
+      return const MisfortuneState._(
+        stage: Stage.wrongBrowser,
+        tooSlow: false,
+        movement: null,
+      );
+    }
+
+    if (browser.browserAgent == BrowserAgent.Safari) {
+      return MisfortuneState._(
+        stage: Stage.awaitingPermissions,
+        tooSlow: false,
+        code: code,
+      );
+    } else if (code == null) {
       return const MisfortuneState._(
         stage: Stage.awaitingPress,
         tooSlow: false,
@@ -63,7 +87,7 @@ class MisfortuneState {
     }
   }
 
-  MisfortuneState copy({
+  MisfortuneState _copy({
     Stage? stage,
     bool? tooSlow,
     required String? movement,
@@ -79,8 +103,26 @@ class MisfortuneState {
     );
   }
 
+  MisfortuneState permissionGranted() {
+    if (code != null) {
+      return _copy(
+        stage: Stage.awaitingSpin,
+        movement: movement,
+        code: code,
+        error: error,
+      );
+    } else {
+      return _copy(
+        stage: Stage.awaitingPress,
+        movement: movement,
+        code: code,
+        error: error,
+      );
+    }
+  }
+
   MisfortuneState failed(double speed, String error) {
-    return copy(
+    return _copy(
       stage: Stage.failed,
       tooSlow: false,
       movement: speed.toString(),
@@ -90,7 +132,7 @@ class MisfortuneState {
   }
 
   MisfortuneState awaitPress() {
-    return copy(
+    return _copy(
       stage: Stage.awaitingPress,
       tooSlow: false,
       movement: null,
@@ -113,7 +155,7 @@ class MisfortuneState {
     required double? speed,
     String? code,
   }) {
-    return copy(
+    return _copy(
       stage: Stage.awaitingSpin,
       tooSlow: tooSlow,
       movement: speed?.toString(),
@@ -123,20 +165,12 @@ class MisfortuneState {
   }
 
   MisfortuneState spinning(double speed) {
-    return copy(
+    return _copy(
       stage: Stage.spinning,
       tooSlow: false,
       movement: speed.toString(),
       code: code,
       error: null,
-    );
-  }
-
-  MisfortuneState wrongBrowser() {
-    return const MisfortuneState._(
-      stage: Stage.wrongBrowser,
-      tooSlow: false,
-      movement: null,
     );
   }
 }
@@ -154,18 +188,9 @@ class MisfortuneBloc extends Bloc<_MisfortuneEvent, MisfortuneState> {
       _subscribe();
     }
     on<_AccelEvent>(_accel);
+    on<PermissionGrantedEvent>(_permissionGranted);
     on<PressButtonEvent>(_pressButton);
     on<ScanQrEvent>(_scanQr);
-    on<_WrongBrowserEvent>(_wrongBrowser);
-
-    final browser = Browser();
-    if (![
-      BrowserAgent.Chrome,
-      BrowserAgent.EdgeChromium,
-      BrowserAgent.Safari,
-    ].contains(browser.browserAgent)) {
-      add(_WrongBrowserEvent());
-    }
   }
 
   double norm({required double x, required double y}) {
@@ -213,6 +238,13 @@ class MisfortuneBloc extends Bloc<_MisfortuneEvent, MisfortuneState> {
     );
   }
 
+  FutureOr<void> _permissionGranted(
+    PermissionGrantedEvent event,
+    Emitter<MisfortuneState> emit,
+  ) {
+    emit(state.permissionGranted());
+  }
+
   FutureOr<void> _scanQr(
     ScanQrEvent event,
     Emitter<MisfortuneState> emit,
@@ -226,12 +258,5 @@ class MisfortuneBloc extends Bloc<_MisfortuneEvent, MisfortuneState> {
     Emitter<MisfortuneState> emit,
   ) {
     emit(state.awaitCode());
-  }
-
-  FutureOr<void> _wrongBrowser(
-    _WrongBrowserEvent event,
-    Emitter<MisfortuneState> emit,
-  ) {
-    emit(state.wrongBrowser());
   }
 }

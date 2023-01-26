@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:js/js.dart';
 import 'package:misfortune_app/bloc.dart';
 import 'package:misfortune_app/client.dart';
+import 'package:misfortune_app/safari_permissions.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 
 void main() {
@@ -95,6 +97,13 @@ class MainPage extends StatelessWidget {
 class SpinContent extends StatelessWidget {
   const SpinContent({Key? key}) : super(key: key);
 
+  void _onPermissionResult(MisfortuneBloc bloc, String? result) {
+    // TODO: log unsuccessful results
+    if (result == "granted") {
+      bloc.add(const PermissionGrantedEvent());
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<MisfortuneBloc, MisfortuneState>(
@@ -105,12 +114,22 @@ class SpinContent extends StatelessWidget {
             return const Text(
               "Leider funktioniert diese Webseite nur in Google Chrome",
             );
+          case Stage.awaitingPermissions:
+            return ElevatedButton(
+              onPressed: () => requestDeviceMotionEventPermission(
+                allowInterop((result) => _onPermissionResult(bloc, result)),
+              ),
+              child: Text(
+                "Zugriff auf Beschleunigungssensor erlauben",
+                style: DefaultTextStyle.of(context).style,
+              ),
+            );
           case Stage.awaitingPress:
             return ElevatedButton(
               style: ButtonStyle(
                 padding: MaterialStateProperty.all(const EdgeInsets.all(25)),
               ),
-              onPressed: () => bloc.add(PressButtonEvent()),
+              onPressed: () => bloc.add(const PressButtonEvent()),
               child: Text(
                 "Ich habe Durst",
                 style: DefaultTextStyle.of(context).style,
@@ -164,9 +183,8 @@ class _QrScannerState extends State<QrScanner> {
   Widget build(BuildContext context) {
     final bloc = BlocProvider.of<MisfortuneBloc>(context);
     return MobileScanner(
-      onDetect: (barcodeCapture) {
+      onDetect: (barcode, _) {
         final String url;
-        final barcode = barcodeCapture.barcodes[0];
         if (barcode.type == BarcodeType.url) {
           final rawUrl = barcode.url?.url;
           if (rawUrl == null) {
