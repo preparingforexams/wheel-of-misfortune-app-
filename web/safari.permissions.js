@@ -1,6 +1,7 @@
 function requestDeviceMotionEventPermission(callback) {
-    if (typeof DeviceMotionEvent.requestPermission === "function") {
-        DeviceMotionEvent.requestPermission()
+    let requestPermission = DeviceMotionEvent.requestPermission;
+    if (typeof requestPermission === "function") {
+        requestPermission()
             .then(callback)
             .catch((_) => callback(null));
     }
