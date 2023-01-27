@@ -155,14 +155,14 @@ class MisfortuneState {
     required bool tooSlow,
     required double? speed,
     String? code,
-    String? error,
+    String? movement,
   }) {
     return copy(
       stage: Stage.awaitingSpin,
       tooSlow: tooSlow,
-      movement: speed?.toString(),
+      movement: movement ?? speed?.toString(),
       code: code ?? this.code,
-      error: error,
+      error: null,
     );
   }
 
@@ -195,6 +195,15 @@ class MisfortuneBloc extends Bloc<_MisfortuneEvent, MisfortuneState> {
     on<ScanQrEvent>(_scanQr);
   }
 
+  double generalNorm(List<double> axes) {
+    double sum = 0;
+    for (final axis in axes) {
+      sum += pow(axis, 2);
+    }
+    final result = pow(sum, 1 / axes.length);
+    return result.toDouble();
+  }
+
   double norm({required double x, required double y}) {
     return sqrt(pow(x, 2) + pow(y, 2));
   }
@@ -208,9 +217,14 @@ class MisfortuneBloc extends Bloc<_MisfortuneEvent, MisfortuneState> {
     }
     final accel = event.event;
 
-    final error = accel.toString();
-
-    emit(state.awaitSpin(tooSlow: true, speed: accel.z, error: error));
+    final fullLength = generalNorm([accel.x, accel.y, accel.z]);
+    if (fullLength > 1) {
+      emit(state.awaitSpin(
+        tooSlow: true,
+        speed: accel.z,
+        movement: accel.toString(),
+      ));
+    }
     return;
 
     final length = accel.z;
