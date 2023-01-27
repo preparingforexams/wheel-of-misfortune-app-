@@ -217,38 +217,24 @@ class MisfortuneBloc extends Bloc<_MisfortuneEvent, MisfortuneState> {
     }
     final accel = event.event;
 
-    final fullLength = generalNorm([accel.x, accel.y, accel.z]);
-    if (fullLength > 5) {
-      emit(state.awaitSpin(
-        tooSlow: true,
-        speed: accel.z,
-        movement: accel.toString(),
-      ));
-    }
-    return;
+    final speed = accel.x.abs();
 
-    final length = accel.z;
-    // final length = norm(
-    //   x: accel.x,
-    //   y: accel.y,
-    // );
-    if (length < 20) {
-      if (length > 5) {
-        // TODO: remove error
-        emit(state.awaitSpin(tooSlow: true, speed: length));
+    if (speed < 8) {
+      if (speed >= 4) {
+        emit(state.awaitSpin(tooSlow: true, speed: speed));
       }
       return;
     }
 
     try {
-      final result = await _client.spin(code: state.code!, speed: length);
+      final result = await _client.spin(code: state.code!, speed: speed);
       if (result) {
-        emit(state.spinning(length));
+        emit(state.spinning(speed));
       } else {
-        emit(state.failed(length, "Jemand anderes war schneller"));
+        emit(state.failed(speed, "Jemand anderes war schneller"));
       }
     } on Exception catch (e) {
-      emit(state.failed(length, e.toString()));
+      emit(state.failed(speed, e.toString()));
     }
 
     _subscription?.cancel();
