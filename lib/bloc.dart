@@ -19,8 +19,10 @@ class ScanQrEvent implements _MisfortuneEvent {
   ScanQrEvent(this.code);
 }
 
-class PermissionGrantedEvent implements _MisfortuneEvent {
-  const PermissionGrantedEvent();
+class PermissionResultEvent implements _MisfortuneEvent {
+  final String? result;
+
+  PermissionResultEvent(this.result);
 }
 
 class _AccelEvent implements _MisfortuneEvent {
@@ -191,7 +193,7 @@ class MisfortuneBloc extends Bloc<_MisfortuneEvent, MisfortuneState> {
       _subscribe();
     }
     on<_AccelEvent>(_accel);
-    on<PermissionGrantedEvent>(_permissionGranted);
+    on<PermissionResultEvent>(_receivedPermissionResult);
     on<PressButtonEvent>(_pressButton);
     on<ScanQrEvent>(_scanQr);
   }
@@ -259,11 +261,19 @@ class MisfortuneBloc extends Bloc<_MisfortuneEvent, MisfortuneState> {
     );
   }
 
-  FutureOr<void> _permissionGranted(
-    PermissionGrantedEvent event,
+  FutureOr<void> _receivedPermissionResult(
+    PermissionResultEvent event,
     Emitter<MisfortuneState> emit,
   ) {
-    emit(state.permissionGranted());
+    if (event.result == "granted") {
+      emit(state.permissionGranted());
+    } else {
+      emit(state.copy(
+        movement: null,
+        code: null,
+        error: "Did not get permission: ${event.result}",
+      ));
+    }
   }
 
   FutureOr<void> _scanQr(

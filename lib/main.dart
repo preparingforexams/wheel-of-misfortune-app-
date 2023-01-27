@@ -98,10 +98,7 @@ class SpinContent extends StatelessWidget {
   const SpinContent({Key? key}) : super(key: key);
 
   void _onPermissionResult(MisfortuneBloc bloc, String? result) {
-    // TODO: log unsuccessful results
-    if (result == "granted") {
-      bloc.add(const PermissionGrantedEvent());
-    }
+    bloc.add(PermissionResultEvent(result));
   }
 
   @override
