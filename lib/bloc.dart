@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:html';
 import 'dart:math';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -56,17 +57,17 @@ class MisfortuneState {
 
   factory MisfortuneState.initial(String? code) {
     final browser = Browser();
-    if (![
-      BrowserAgent.Chrome,
-      BrowserAgent.EdgeChromium,
-      BrowserAgent.Safari,
-    ].contains(browser.browserAgent)) {
-      return const MisfortuneState._(
-        stage: Stage.wrongBrowser,
-        tooSlow: false,
-        movement: null,
-      );
-    }
+    // if (![
+    //   BrowserAgent.Chrome,
+    //   BrowserAgent.EdgeChromium,
+    //   BrowserAgent.Safari,
+    // ].contains(browser.browserAgent)) {
+    //   return const MisfortuneState._(
+    //     stage: Stage.wrongBrowser,
+    //     tooSlow: false,
+    //     movement: null,
+    //   );
+    // }
 
     if (browser.browserAgent == BrowserAgent.Safari) {
       return MisfortuneState._(
