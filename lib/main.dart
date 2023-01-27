@@ -112,7 +112,7 @@ class SpinContent extends StatelessWidget {
         switch (state.stage) {
           case Stage.wrongBrowser:
             return const Text(
-              "Leider funktioniert diese Webseite nur in Google Chrome",
+              "Leider funktioniert diese Webseite nicht in deinem Browser",
             );
           case Stage.awaitingPermissions:
             return ElevatedButton(

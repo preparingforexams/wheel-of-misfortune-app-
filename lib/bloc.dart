@@ -3,8 +3,9 @@ import 'dart:math';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:misfortune_app/client.dart';
-import 'package:sensors_plus/sensors_plus.dart';
 import 'package:web_browser_detect/web_browser_detect.dart';
+
+import 'motion.dart';
 
 abstract class _MisfortuneEvent {}
 
@@ -23,7 +24,7 @@ class PermissionGrantedEvent implements _MisfortuneEvent {
 }
 
 class _AccelEvent implements _MisfortuneEvent {
-  final UserAccelerometerEvent event;
+  final MotionEvent event;
 
   _AccelEvent(this.event);
 }
@@ -87,7 +88,7 @@ class MisfortuneState {
     }
   }
 
-  MisfortuneState _copy({
+  MisfortuneState copy({
     Stage? stage,
     bool? tooSlow,
     required String? movement,
@@ -105,14 +106,14 @@ class MisfortuneState {
 
   MisfortuneState permissionGranted() {
     if (code != null) {
-      return _copy(
+      return copy(
         stage: Stage.awaitingSpin,
         movement: movement,
         code: code,
         error: error,
       );
     } else {
-      return _copy(
+      return copy(
         stage: Stage.awaitingPress,
         movement: movement,
         code: code,
@@ -122,7 +123,7 @@ class MisfortuneState {
   }
 
   MisfortuneState failed(double speed, String error) {
-    return _copy(
+    return copy(
       stage: Stage.failed,
       tooSlow: false,
       movement: speed.toString(),
@@ -132,7 +133,7 @@ class MisfortuneState {
   }
 
   MisfortuneState awaitPress() {
-    return _copy(
+    return copy(
       stage: Stage.awaitingPress,
       tooSlow: false,
       movement: null,
@@ -154,18 +155,19 @@ class MisfortuneState {
     required bool tooSlow,
     required double? speed,
     String? code,
+    String? error,
   }) {
-    return _copy(
+    return copy(
       stage: Stage.awaitingSpin,
       tooSlow: tooSlow,
       movement: speed?.toString(),
       code: code ?? this.code,
-      error: null,
+      error: error,
     );
   }
 
   MisfortuneState spinning(double speed) {
-    return _copy(
+    return copy(
       stage: Stage.spinning,
       tooSlow: false,
       movement: speed.toString(),
@@ -205,13 +207,18 @@ class MisfortuneBloc extends Bloc<_MisfortuneEvent, MisfortuneState> {
       return;
     }
     final accel = event.event;
-    final length = norm(
-      x: accel.x,
-      y: accel.y,
-    );
+
+    final error = accel.toString();
+
+    final length = accel.z;
+    // final length = norm(
+    //   x: accel.x,
+    //   y: accel.y,
+    // );
     if (length < 20) {
       if (length > 5) {
-        emit(state.awaitSpin(tooSlow: true, speed: length));
+        // TODO: remove error
+        emit(state.awaitSpin(tooSlow: true, speed: length, error: error));
       }
       return;
     }
@@ -233,7 +240,7 @@ class MisfortuneBloc extends Bloc<_MisfortuneEvent, MisfortuneState> {
   }
 
   void _subscribe() {
-    _subscription = userAccelerometerEvents.listen(
+    _subscription = Motion.subscribe(
       (event) => add(_AccelEvent(event)),
     );
   }

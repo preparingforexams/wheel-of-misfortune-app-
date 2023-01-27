@@ -35,7 +35,6 @@ dependencies:
   js: ^0.6.0
   mobile_scanner: ^2.1.0
   provider: ^6.0.0
-  sensors_plus: ^2.0.0
   web_browser_detect: ^2.0.0
 
 dev_dependencies:
