@@ -210,6 +210,9 @@ class MisfortuneBloc extends Bloc<_MisfortuneEvent, MisfortuneState> {
 
     final error = accel.toString();
 
+    emit(state.awaitSpin(tooSlow: true, speed: accel.z, error: error));
+    return;
+
     final length = accel.z;
     // final length = norm(
     //   x: accel.x,
@@ -218,7 +221,7 @@ class MisfortuneBloc extends Bloc<_MisfortuneEvent, MisfortuneState> {
     if (length < 20) {
       if (length > 5) {
         // TODO: remove error
-        emit(state.awaitSpin(tooSlow: true, speed: length, error: error));
+        emit(state.awaitSpin(tooSlow: true, speed: length));
       }
       return;
     }
