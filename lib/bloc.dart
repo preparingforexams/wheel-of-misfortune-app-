@@ -3,6 +3,7 @@ import 'dart:math';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:misfortune_app/client.dart';
+import 'package:misfortune_app/safari_permissions.dart';
 import 'package:web_browser_detect/web_browser_detect.dart';
 
 import 'motion.dart';
@@ -19,10 +20,10 @@ class ScanQrEvent implements _MisfortuneEvent {
   ScanQrEvent(this.code);
 }
 
-class PermissionResultEvent implements _MisfortuneEvent {
+class _PermissionResultEvent implements _MisfortuneEvent {
   final String? result;
 
-  PermissionResultEvent(this.result);
+  _PermissionResultEvent(this.result);
 }
 
 class _AccelEvent implements _MisfortuneEvent {
@@ -58,18 +59,6 @@ class MisfortuneState {
 
   factory MisfortuneState.initial(String? code) {
     final browser = Browser();
-    // if (![
-    //   BrowserAgent.Chrome,
-    //   BrowserAgent.EdgeChromium,
-    //   BrowserAgent.Safari,
-    // ].contains(browser.browserAgent)) {
-    //   return const MisfortuneState._(
-    //     stage: Stage.wrongBrowser,
-    //     tooSlow: false,
-    //     movement: null,
-    //   );
-    // }
-
     if (browser.browserAgent == BrowserAgent.Safari) {
       return MisfortuneState._(
         stage: Stage.awaitingPermissions,
@@ -189,11 +178,15 @@ class MisfortuneBloc extends Bloc<_MisfortuneEvent, MisfortuneState> {
     required String? code,
   })  : _client = client,
         super(MisfortuneState.initial(code)) {
-    if (code != null) {
+    if (state.stage == Stage.awaitingPermissions) {
+      requestDeviceMotionEventPermission(
+        (result) => add(_PermissionResultEvent(result)),
+      );
+    } else if (code != null) {
       _subscribe();
     }
     on<_AccelEvent>(_accel);
-    on<PermissionResultEvent>(_receivedPermissionResult);
+    on<_PermissionResultEvent>(_receivedPermissionResult);
     on<PressButtonEvent>(_pressButton);
     on<ScanQrEvent>(_scanQr);
   }
@@ -262,7 +255,7 @@ class MisfortuneBloc extends Bloc<_MisfortuneEvent, MisfortuneState> {
   }
 
   FutureOr<void> _receivedPermissionResult(
-    PermissionResultEvent event,
+    _PermissionResultEvent event,
     Emitter<MisfortuneState> emit,
   ) {
     if (event.result == "granted") {

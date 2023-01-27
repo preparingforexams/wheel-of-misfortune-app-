@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:js/js.dart';
 import 'package:misfortune_app/bloc.dart';
 import 'package:misfortune_app/client.dart';
-import 'package:misfortune_app/safari_permissions.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 
 void main() {
@@ -97,10 +95,6 @@ class MainPage extends StatelessWidget {
 class SpinContent extends StatelessWidget {
   const SpinContent({Key? key}) : super(key: key);
 
-  void _onPermissionResult(MisfortuneBloc bloc, String? result) {
-    bloc.add(PermissionResultEvent(result));
-  }
-
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<MisfortuneBloc, MisfortuneState>(
@@ -112,14 +106,8 @@ class SpinContent extends StatelessWidget {
               "Leider funktioniert diese Webseite nicht in deinem Browser",
             );
           case Stage.awaitingPermissions:
-            return ElevatedButton(
-              onPressed: () => requestDeviceMotionEventPermission(
-                allowInterop((result) => _onPermissionResult(bloc, result)),
-              ),
-              child: Text(
-                "Zugriff auf Beschleunigungssensor erlauben",
-                style: DefaultTextStyle.of(context).style,
-              ),
+            return const Text(
+              "Bitte gib der Webseite Zugriff auf den Beschleunigungssensor",
             );
           case Stage.awaitingPress:
             return ElevatedButton(
