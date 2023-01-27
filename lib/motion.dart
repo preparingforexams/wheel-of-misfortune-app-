@@ -46,7 +46,7 @@ class MotionEvent {
 
   @override
   String toString() {
-    return "x: $x, y: $y, z: $z";
+    return "x: ${x.toStringAsFixed(2)}, y: ${y.toStringAsFixed(2)}, z: ${z.toStringAsFixed(2)}";
   }
 }
 
