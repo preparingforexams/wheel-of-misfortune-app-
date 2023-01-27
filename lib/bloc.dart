@@ -230,8 +230,8 @@ class MisfortuneBloc extends Bloc<_MisfortuneEvent, MisfortuneState> {
 
     final speed = accel.x.abs();
 
-    if (speed < 8) {
-      if (speed >= 4) {
+    if (speed < 20) {
+      if (speed > 5) {
         emit(state.awaitSpin(tooSlow: true, speed: speed));
       }
       return;
