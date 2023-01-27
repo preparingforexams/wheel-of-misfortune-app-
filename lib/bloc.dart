@@ -228,6 +228,9 @@ class MisfortuneBloc extends Bloc<_MisfortuneEvent, MisfortuneState> {
 
     try {
       final result = await _client.spin(code: state.code!, speed: speed);
+      if (state.stage != Stage.awaitingSpin) {
+        return;
+      }
       if (result) {
         emit(state.spinning(speed));
       } else {
