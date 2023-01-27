@@ -180,6 +180,7 @@ class MisfortuneState {
 class MisfortuneBloc extends Bloc<_MisfortuneEvent, MisfortuneState> {
   final MisfortuneClient _client;
   StreamSubscription? _subscription;
+  DateTime? _lastSuccessfulSpin;
 
   MisfortuneBloc({
     required MisfortuneClient client,
@@ -215,6 +216,14 @@ class MisfortuneBloc extends Bloc<_MisfortuneEvent, MisfortuneState> {
     if (state.stage != Stage.awaitingSpin) {
       return;
     }
+    final now = DateTime.now();
+    final lastSuccessfulSpin = _lastSuccessfulSpin;
+
+    if (lastSuccessfulSpin != null &&
+        now.difference(lastSuccessfulSpin).inSeconds < 5) {
+      return;
+    }
+
     final accel = event.event;
 
     final speed = accel.x.abs();
@@ -226,11 +235,10 @@ class MisfortuneBloc extends Bloc<_MisfortuneEvent, MisfortuneState> {
       return;
     }
 
+    _lastSuccessfulSpin = now;
+
     try {
       final result = await _client.spin(code: state.code!, speed: speed);
-      if (state.stage != Stage.awaitingSpin) {
-        return;
-      }
       if (result) {
         emit(state.spinning(speed));
       } else {
