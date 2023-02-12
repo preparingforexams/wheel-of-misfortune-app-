@@ -168,8 +168,9 @@ class _QrScannerState extends State<QrScanner> {
   Widget build(BuildContext context) {
     final bloc = BlocProvider.of<MisfortuneBloc>(context);
     return MobileScanner(
-      onDetect: (barcode, _) {
+      onDetect: (barcodeCapture) {
         final String url;
+        final barcode = barcodeCapture.barcodes[0];
         if (barcode.type == BarcodeType.url) {
           final rawUrl = barcode.url?.url;
           if (rawUrl == null) {
