@@ -164,38 +164,49 @@ class _QrScannerState extends State<QrScanner> {
     super.dispose();
   }
 
+  Uri? _extractUri(Barcode barcode) {
+    final String url;
+    if (barcode.type == BarcodeType.url) {
+      final rawUrl = barcode.url?.url;
+      if (rawUrl == null) {
+        return null;
+      }
+      url = rawUrl;
+    } else if (barcode.type == BarcodeType.text) {
+      final rawValue = barcode.rawValue;
+      if (rawValue == null) {
+        return null;
+      }
+      url = rawValue;
+    } else {
+      return null;
+    }
+
+    return Uri.tryParse(url);
+  }
+
+  String? _extractCode(Barcode barcode) {
+    final uri = _extractUri(barcode);
+    if (uri != null && uri.authority == "bembel.party") {
+      final code = uri.queryParameters["code"];
+      if (code != null) {
+        return code;
+      }
+    }
+
+    return null;
+  }
+
   @override
   Widget build(BuildContext context) {
     final bloc = BlocProvider.of<MisfortuneBloc>(context);
     return MobileScanner(
       onDetect: (barcodeCapture) {
-        final String url;
-        final barcode = barcodeCapture.barcodes[0];
-        if (barcode.type == BarcodeType.url) {
-          final rawUrl = barcode.url?.url;
-          if (rawUrl == null) {
-            return;
-          }
-          url = rawUrl;
-        } else if (barcode.type == BarcodeType.text) {
-          final rawValue = barcode.rawValue;
-          if (rawValue == null) {
-            return;
-          }
-          url = rawValue;
-        } else {
-          return;
-        }
-
-        final uri = Uri.tryParse(url);
-        if (uri == null) {
-          return;
-        }
-
-        if (uri.authority == "bembel.party") {
-          final code = uri.queryParameters["code"];
+        for (final barcode in barcodeCapture.barcodes) {
+          final code = _extractCode(barcode);
           if (code != null) {
             bloc.add(ScanQrEvent(code));
+            break;
           }
         }
       },
