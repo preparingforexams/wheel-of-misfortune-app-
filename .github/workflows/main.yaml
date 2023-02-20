@@ -29,7 +29,7 @@ jobs:
       - uses: actions/checkout@v3
       - name: Substitute environment variables in values.yaml
         run: "envsubst < values.yaml > values_sub.yaml && mv values_sub.yaml values.yaml"
-      - uses: WyriHaximus/github-action-helm3@v2
+      - uses: WyriHaximus/github-action-helm3@v3
         with:
           exec: helm upgrade app . --install --namespace=misfortune --atomic
           kubeconfig: '${{ secrets.KUBECONFIG_RAW }}'
