@@ -4,12 +4,12 @@ library safari_permissions;
 import 'package:js/js.dart';
 
 void requestDeviceMotionEventPermission(
-void Function(String?) callback,
+  void Function(String?) callback,
 ) {
   _requestDeviceMotionEventPermission(allowInterop(callback));
 }
 
-@JS("requestDeviceMotionEventPermission")
+@JS('requestDeviceMotionEventPermission')
 external void _requestDeviceMotionEventPermission(
   void Function(String?) callback,
 );

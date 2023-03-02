@@ -8,9 +8,9 @@
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  test("uri", () {
+  test('uri', () {
         expect(
-      () => Uri.https("bembel.party", "spin", {"speed": "0.0123"}),
+      () => Uri.https('bembel.party', 'spin', {'speed': '0.0123'}),
       returnsNormally,
     );
   });

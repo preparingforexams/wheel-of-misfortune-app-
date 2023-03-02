@@ -5,7 +5,7 @@ import 'package:misfortune_app/client.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 
 void main() {
-  runApp(MyApp(code: Uri.base.queryParameters["code"]));
+  runApp(MyApp(code: Uri.base.queryParameters['code']));
 }
 
 class MyApp extends StatelessWidget {
@@ -103,11 +103,11 @@ class SpinContent extends StatelessWidget {
         switch (state.stage) {
           case Stage.wrongBrowser:
             return const Text(
-              "Leider funktioniert diese Webseite nicht in deinem Browser",
+              'Leider funktioniert diese Webseite nicht in deinem Browser',
             );
           case Stage.awaitingPermissions:
             return const Text(
-              "Bitte gib der Webseite Zugriff auf den Beschleunigungssensor",
+              'Bitte gib der Webseite Zugriff auf den Beschleunigungssensor',
             );
           case Stage.awaitingPress:
             return ElevatedButton(
@@ -116,7 +116,7 @@ class SpinContent extends StatelessWidget {
               ),
               onPressed: () => bloc.add(const PressButtonEvent()),
               child: Text(
-                "Ich habe Durst",
+                'Ich habe Durst',
                 style: DefaultTextStyle.of(context).style,
               ),
             );
@@ -126,14 +126,14 @@ class SpinContent extends StatelessWidget {
             return Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                const Text("Dreh das Rad!"),
-                if (state.tooSlow) const Text("Schneller!")
+                const Text('Dreh das Rad!'),
+                if (state.tooSlow) const Text('Schneller!')
               ],
             );
           case Stage.failed:
-            return Text("Konnte das Rad nicht drehen 😢 (${state.error})");
+            return Text('Konnte das Rad nicht drehen 😢 (${state.error})');
           case Stage.spinning:
-            return const Text("Prost!");
+            return const Text('Prost!');
         }
       },
     );
@@ -187,8 +187,8 @@ class _QrScannerState extends State<QrScanner> {
 
   String? _extractCode(Barcode barcode) {
     final uri = _extractUri(barcode);
-    if (uri != null && uri.authority == "bembel.party") {
-      final code = uri.queryParameters["code"];
+    if (uri != null && uri.authority == 'bembel.party') {
+      final code = uri.queryParameters['code'];
       if (code != null) {
         return code;
       }

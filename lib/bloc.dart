@@ -1,12 +1,12 @@
 import 'dart:async';
 import 'dart:math';
 
+import 'package:bloc_concurrency/bloc_concurrency.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:misfortune_app/client.dart';
+import 'package:misfortune_app/motion.dart';
 import 'package:misfortune_app/safari_permissions.dart';
 import 'package:web_browser_detect/web_browser_detect.dart';
-
-import 'motion.dart';
 
 abstract class _MisfortuneEvent {}
 
@@ -171,7 +171,6 @@ class MisfortuneState {
 class MisfortuneBloc extends Bloc<_MisfortuneEvent, MisfortuneState> {
   final MisfortuneClient _client;
   StreamSubscription? _subscription;
-  DateTime? _lastSuccessfulSpin;
 
   MisfortuneBloc({
     required MisfortuneClient client,
@@ -185,7 +184,7 @@ class MisfortuneBloc extends Bloc<_MisfortuneEvent, MisfortuneState> {
     } else if (code != null) {
       _subscribe();
     }
-    on<_AccelEvent>(_accel);
+    on<_AccelEvent>(_accel, transformer: sequential());
     on<_PermissionResultEvent>(_receivedPermissionResult);
     on<PressButtonEvent>(_pressButton);
     on<ScanQrEvent>(_scanQr);
@@ -211,16 +210,8 @@ class MisfortuneBloc extends Bloc<_MisfortuneEvent, MisfortuneState> {
     if (state.stage != Stage.awaitingSpin) {
       return;
     }
-    final now = DateTime.now();
-    final lastSuccessfulSpin = _lastSuccessfulSpin;
-
-    if (lastSuccessfulSpin != null &&
-        now.difference(lastSuccessfulSpin).inSeconds < 5) {
-      return;
-    }
 
     final accel = event.event;
-
     final speed = accel.x.abs();
 
     if (speed < 20) {
@@ -230,14 +221,12 @@ class MisfortuneBloc extends Bloc<_MisfortuneEvent, MisfortuneState> {
       return;
     }
 
-    _lastSuccessfulSpin = now;
-
     try {
       final result = await _client.spin(code: state.code!, speed: speed);
       if (result) {
         emit(state.spinning(speed));
       } else {
-        emit(state.failed(speed, "Jemand anderes war schneller"));
+        emit(state.failed(speed, 'Jemand anderes war schneller'));
       }
     } on Exception catch (e) {
       emit(state.failed(speed, e.toString()));
@@ -258,13 +247,13 @@ class MisfortuneBloc extends Bloc<_MisfortuneEvent, MisfortuneState> {
     _PermissionResultEvent event,
     Emitter<MisfortuneState> emit,
   ) {
-    if (event.result == "granted") {
+    if (event.result == 'granted') {
       emit(state.permissionGranted());
     } else {
       emit(state.copy(
         movement: null,
         code: null,
-        error: "Did not get permission: ${event.result}",
+        error: 'Did not get permission: ${event.result}',
       ));
     }
   }

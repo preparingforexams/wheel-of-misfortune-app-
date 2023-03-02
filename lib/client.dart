@@ -9,13 +9,13 @@ class HttpMisfortuneClient implements MisfortuneClient {
   Future<bool> spin({required String code, required double speed}) async {
     final response = await http.post(
       Uri.https(
-        "api.bembel.party",
-        "spin",
+        'api.bembel.party',
+        'spin',
         {
-          "speed": "$speed",
+          'speed': '$speed',
         },
       ),
-      headers: {"Authorization": "Bearer $code"},
+      headers: {'Authorization': 'Bearer $code'},
     );
 
     final statusCode = response.statusCode;
@@ -24,7 +24,7 @@ class HttpMisfortuneClient implements MisfortuneClient {
     } else if (statusCode == 409 || statusCode == 403) {
       return false;
     } else {
-      throw Exception("Error response $statusCode");
+      throw Exception('Error response $statusCode');
     }
   }
 }
