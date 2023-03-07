@@ -76,6 +76,7 @@ jobs:
       - name: Build container image
         uses: docker/build-push-action@v4
         with:
+          context: .
           tags: ghcr.io/preparingforexams/wheel-of-misfortune-app:${{ github.sha }}
 
   push-image:
@@ -99,8 +100,9 @@ jobs:
       - name: Build container image
         uses: docker/build-push-action@v4
         with:
-          push: true
           build-args: build=${{ github.sha }}
+          context: .
+          push: true
           tags: ghcr.io/preparingforexams/wheel-of-misfortune-app:${{ github.sha }}
 
   deploy:
