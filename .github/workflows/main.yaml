@@ -99,22 +99,6 @@ jobs:
           build-args: build=${{ github.sha }}
           tags: ghcr.io/preparingforexams/wheel-of-misfortune-app:${{ github.sha }}
 
-  push_docker:
-    runs-on: ubuntu-latest
-    if: success() && github.ref == 'refs/heads/main'
-    steps:
-      - uses: actions/checkout@v3
-      - name: Login to GitHub Container Registry
-        uses: docker/login-action@v2
-        with:
-          registry: ghcr.io
-          username: ${{ github.repository_owner }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-      - name: Build the tagged Docker image
-        run: docker build -t ghcr.io/preparingforexams/wheel-of-misfortune-app:${GITHUB_SHA} --build-arg "build=${GITHUB_SHA}" .
-      - name: Push the tagged Docker image
-        run: docker push ghcr.io/preparingforexams/wheel-of-misfortune-app:${GITHUB_SHA}
-
   deploy:
     runs-on: ubuntu-latest
     needs: push_docker
