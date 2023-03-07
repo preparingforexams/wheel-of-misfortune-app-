@@ -1,12 +1,7 @@
-FROM cirrusci/flutter:3.7.5 AS builder
+FROM nginxinc/nginx-unprivileged:1.23
 
-WORKDIR /app
+COPY build/web /usr/share/nginx/html/
 
-COPY . .
+COPY nginx.conf /etc/nginx/conf.d/default.conf
 
-RUN flutter pub get
-RUN flutter build web --release
-
-FROM nginx:1.23-alpine
-
-COPY --from=builder /app/build/web /usr/share/nginx/html
+EXPOSE 8080
