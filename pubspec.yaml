@@ -16,6 +16,8 @@ dependencies:
   flutter:
     sdk: flutter
   flutter_bloc: ^8.0.0
+  flutter_web_plugins:
+    sdk: flutter
   http: ^0.13.0
   js: ^0.6.0
   mobile_scanner: ^3.0.0

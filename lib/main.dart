@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_web_plugins/flutter_web_plugins.dart';
 import 'package:misfortune_app/bloc.dart';
 import 'package:misfortune_app/client.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 
 void main() {
+  usePathUrlStrategy();
   runApp(MyApp(code: Uri.base.queryParameters['code']));
 }
 
