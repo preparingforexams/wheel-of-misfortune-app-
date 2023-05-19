@@ -93,10 +93,10 @@ packages:
     dependency: "direct dev"
     description:
       name: build_runner
-      sha256: "87e06c939450b9b94e3e1bb2d46e0e9780adbff5500d3969f2ba2de6bbb860cb"
+      sha256: "220ae4553e50d7c21a17c051afc7b183d28a24a420502e842f303f8e4e6edced"
       url: "https://pub.dev"
     source: hosted
-    version: "2.4.2"
+    version: "2.4.4"
   build_runner_core:
     dependency: transitive
     description:
@@ -213,10 +213,10 @@ packages:
     dependency: transitive
     description:
       name: file
-      sha256: "1b92bec4fc2a72f59a8e15af5f52cd441e4a7860b49499d69dfa817af20e925d"
+      sha256: "5fc22d7c25582e38ad9a8515372cd9a93834027aacf1801cf01164dac0ffa08c"
       url: "https://pub.dev"
     source: hosted
-    version: "6.1.4"
+    version: "7.0.0"
   fixnum:
     dependency: transitive
     description:
@@ -268,10 +268,10 @@ packages:
     dependency: transitive
     description:
       name: glob
-      sha256: "4515b5b6ddb505ebdd242a5f2cc5d22d3d6a80013789debfbda7777f47ea308c"
+      sha256: "0e7014b3b7d4dac1ca4d6114f82bf1782ee86745b9b42a92c9289c23d8a0ab63"
       url: "https://pub.dev"
     source: hosted
-    version: "2.1.1"
+    version: "2.1.2"
   graphs:
     dependency: transitive
     description:
@@ -545,10 +545,10 @@ packages:
     dependency: transitive
     description:
       name: universal_html
-      sha256: ed4f24120c9b1b4721d44e439f7a47d09d9f1b7b868bc84c9d6d373a4a8732af
+      sha256: f2e0ff0c4af8e4bbda4d273ca4a11be4055414f478fad5c161609b74790ff696
       url: "https://pub.dev"
     source: hosted
-    version: "2.2.1"
+    version: "2.2.2"
   universal_io:
     dependency: transitive
     description:
