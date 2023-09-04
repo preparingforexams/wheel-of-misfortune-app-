@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check out repo
-        uses: actions/checkout@v3
+        uses: actions/checkout@3df4ab11eba7bda6032a0b82a6bb43b11571feac # v4
       - uses: asdf-vm/actions/install@v2
       - name: Check lib formatting
         run: dart format lib --set-exit-if-changed --output=none
@@ -20,7 +20,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check out repo
-        uses: actions/checkout@v3
+        uses: actions/checkout@3df4ab11eba7bda6032a0b82a6bb43b11571feac # v4
       - uses: asdf-vm/actions/install@v2
       - name: Get dependencies
         run: flutter pub get
@@ -35,7 +35,7 @@ jobs:
     needs: [check-format, lint]
     steps:
       - name: Check out repo
-        uses: actions/checkout@v3
+        uses: actions/checkout@3df4ab11eba7bda6032a0b82a6bb43b11571feac # v4
       - uses: asdf-vm/actions/install@v2
       - name: Get dependencies
         run: flutter pub get
@@ -55,7 +55,7 @@ jobs:
     if: ${{ success() && github.ref != 'refs/heads/main' }}
     steps:
       - name: Check out repo
-        uses: actions/checkout@v3
+        uses: actions/checkout@3df4ab11eba7bda6032a0b82a6bb43b11571feac # v4
       - name: Pull Artifacts
         uses: actions/download-artifact@v3
         with:
@@ -73,7 +73,7 @@ jobs:
     if: ${{ success() && github.ref == 'refs/heads/main' }}
     steps:
       - name: Check out repo
-        uses: actions/checkout@v3
+        uses: actions/checkout@3df4ab11eba7bda6032a0b82a6bb43b11571feac # v4
       - name: Pull Artifacts
         uses: actions/download-artifact@v3
         with:
@@ -98,7 +98,7 @@ jobs:
     needs: push-image
     concurrency: production
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@3df4ab11eba7bda6032a0b82a6bb43b11571feac # v4
       - name: Substitute environment variables in values.yaml
         run: "envsubst < values.yaml > values_sub.yaml && mv values_sub.yaml values.yaml"
       - uses: WyriHaximus/github-action-helm3@v3
