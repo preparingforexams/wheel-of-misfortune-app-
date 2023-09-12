@@ -62,7 +62,7 @@ jobs:
           name: web-app
           path: build/web
       - name: Build container image
-        uses: docker/build-push-action@v4
+        uses: docker/build-push-action@v5
         with:
           context: .
           tags: ghcr.io/preparingforexams/wheel-of-misfortune-app:${{ github.sha }}
@@ -86,7 +86,7 @@ jobs:
           username: ${{ github.repository_owner }}
           password: ${{ github.token }}
       - name: Build container image
-        uses: docker/build-push-action@v4
+        uses: docker/build-push-action@v5
         with:
           build-args: build=${{ github.sha }}
           context: .
