@@ -14,9 +14,9 @@ class MyApp extends StatelessWidget {
   final String? code;
 
   const MyApp({
-    super.key,
+    Key? key,
     required this.code,
-  });
+  }) : super(key: key);
 
   // This widget is the root of your application.
   @override
@@ -44,9 +44,9 @@ class BlocPage extends StatelessWidget {
   final String? code;
 
   const BlocPage({
-    super.key,
+    Key? key,
     required this.code,
-  });
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -61,7 +61,7 @@ class BlocPage extends StatelessWidget {
 }
 
 class MainPage extends StatelessWidget {
-  const MainPage({super.key});
+  const MainPage({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -95,7 +95,7 @@ class MainPage extends StatelessWidget {
 }
 
 class SpinContent extends StatelessWidget {
-  const SpinContent({super.key});
+  const SpinContent({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -143,7 +143,7 @@ class SpinContent extends StatelessWidget {
 }
 
 class QrScanner extends StatefulWidget {
-  const QrScanner({super.key});
+  const QrScanner({Key? key}) : super(key: key);
 
   @override
   State<QrScanner> createState() => _QrScannerState();

@@ -60,11 +60,11 @@ class Motion {
     final eventListener = _EventListener(controller);
     controller.onListen = () => window.addEventListener(
           kDeviceMotionEventType,
-          eventListener.call,
+          eventListener,
         );
     controller.onCancel = () => window.removeEventListener(
           kDeviceMotionEventType,
-          eventListener.call,
+          eventListener,
         );
 
     return controller.stream.listen(handler);
