@@ -212,6 +212,12 @@ class _QrScannerState extends State<QrScanner> {
           }
         }
       },
+      errorBuilder: (context, error, widget) {
+        return Center(
+            child: Text(
+          'Error ${error.errorCode}: ${error.errorDetails?.message}',
+        ));
+      },
       controller: _controller,
     );
   }
