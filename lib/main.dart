@@ -108,8 +108,16 @@ class SpinContent extends StatelessWidget {
               'Leider funktioniert diese Webseite nicht in deinem Browser',
             );
           case Stage.awaitingPermissions:
-            return const Text(
-              'Bitte gib der Webseite Zugriff auf den Beschleunigungssensor',
+            return Column(
+              children: [
+                const Text(
+                  'Bitte gib der Webseite Zugriff auf den Beschleunigungssensor',
+                ),
+                ElevatedButton(
+                  onPressed: bloc.requestSafariPermissions,
+                  child: const Text('OK'),
+                ),
+              ],
             );
           case Stage.awaitingPress:
             return ElevatedButton(

@@ -178,9 +178,7 @@ class MisfortuneBloc extends Bloc<_MisfortuneEvent, MisfortuneState> {
   })  : _client = client,
         super(MisfortuneState.initial(code)) {
     if (state.stage == Stage.awaitingPermissions) {
-      requestDeviceMotionEventPermission(
-        (result) => add(_PermissionResultEvent(result)),
-      );
+      requestSafariPermissions();
     } else if (code != null) {
       _subscribe();
     }
@@ -188,6 +186,12 @@ class MisfortuneBloc extends Bloc<_MisfortuneEvent, MisfortuneState> {
     on<_PermissionResultEvent>(_receivedPermissionResult);
     on<PressButtonEvent>(_pressButton);
     on<ScanQrEvent>(_scanQr);
+  }
+
+  void requestSafariPermissions() {
+    requestDeviceMotionEventPermission(
+      (result) => add(_PermissionResultEvent(result)),
+    );
   }
 
   double generalNorm(List<double> axes) {
