@@ -97,7 +97,7 @@ class MainPage extends StatelessWidget {
 class SpinContent extends StatelessWidget {
   const SpinContent({super.key});
 
-  @override
+  web_browser_detect@override
   Widget build(BuildContext context) {
     return BlocBuilder<MisfortuneBloc, MisfortuneState>(
       builder: (context, state) {

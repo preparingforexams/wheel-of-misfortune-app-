@@ -20,7 +20,7 @@ dependencies:
     sdk: flutter
   http: ^1.0.0
   js: ^0.6.0
-  mobile_scanner: ^3.0.0
+  mobile_scanner: ">=3.4.0<3.5.0"
   provider: ^6.0.0
   web_browser_detect: ^2.0.0
 
