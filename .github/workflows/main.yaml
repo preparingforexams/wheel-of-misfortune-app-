@@ -5,6 +5,9 @@ on:
   pull_request: {}
 
 jobs:
+  validate-renovate-config:
+    uses: BlindfoldedSurgery/renovate-config/.github/workflows/validate.yml@main
+
   check-format:
     name: Check Format
     runs-on: ubuntu-latest
