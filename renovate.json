@@ -3,6 +3,7 @@
   "extends": [
     "local>preparingforexams/renovate-config"
   ],
+  "enabled": false,
   "packageRules": [
     {
       "matchCategories": [
