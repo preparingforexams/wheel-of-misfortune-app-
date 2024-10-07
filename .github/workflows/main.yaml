@@ -68,7 +68,7 @@ jobs:
             type = s3
             provider = Cloudflare
             access_key_id = ${{ secrets.AWS_ACCESS_KEY_ID }}
-            secret_access_key = ${{ secrets.AWS_SECRET_ACCESS_KEY}
+            secret_access_key = ${{ secrets.AWS_SECRET_ACCESS_KEY }}
             region = auto
             endpoint = ${{ secrets.S3_ENDPOINT }}
         run: echo "$CONFIG" > /config/rclone/rclone.conf
