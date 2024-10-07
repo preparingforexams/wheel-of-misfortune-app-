@@ -71,6 +71,8 @@ jobs:
             secret_access_key = ${{ secrets.AWS_SECRET_ACCESS_KEY }}
             region = auto
             endpoint = ${{ secrets.S3_ENDPOINT }}
-        run: echo "$CONFIG" > /config/rclone/rclone.conf
+        run: |
+          mkdir -p /config/rclone
+          echo "$CONFIG" > /config/rclone/rclone.conf
       - name: Copy web package to bucket
         run: rclone sync . r2:/
