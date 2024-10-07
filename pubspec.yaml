@@ -13,6 +13,7 @@ environment:
 
 dependencies:
   bloc_concurrency: ^0.2.1
+  cupertino_icons: ^1.0.0
   flutter:
     sdk: flutter
   flutter_bloc: ^8.0.0
