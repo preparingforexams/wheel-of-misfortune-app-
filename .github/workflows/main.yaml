@@ -65,9 +65,9 @@ jobs:
             provider = Cloudflare
             access_key_id = ${{ secrets.AWS_ACCESS_KEY_ID }}
             secret_access_key = ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-            endpoint = ${{ vars.S3_ENDPOINT }}
+            endpoint = ${{ secrets.S3_ENDPOINT }}
         run: |
           mkdir -p /config/rclone
           echo "$CONFIG" > /config/rclone/rclone.conf
       - name: Copy web package to bucket
-        run: rclone sync $PWD r2:${{ vars.S3_BUCKET_NAME }}/
+        run: rclone sync $PWD r2:${{ secrets.S3_BUCKET_NAME }}/
