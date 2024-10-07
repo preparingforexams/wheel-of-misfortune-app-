@@ -1,5 +1,5 @@
 @JS()
-library safari_permissions;
+library;
 
 import 'package:js/js.dart';
 

@@ -122,7 +122,7 @@ class SpinContent extends StatelessWidget {
           case Stage.awaitingPress:
             return ElevatedButton(
               style: ButtonStyle(
-                padding: MaterialStateProperty.all(const EdgeInsets.all(25)),
+                padding: WidgetStateProperty.all(const EdgeInsets.all(25)),
               ),
               onPressed: () => bloc.add(const PressButtonEvent()),
               child: Text(
