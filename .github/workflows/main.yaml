@@ -52,59 +52,25 @@ jobs:
           name: web-app
           path: build/web
 
-  build-image:
-    runs-on: ubuntu-latest
-    needs: build
-    if: ${{ success() && github.ref != 'refs/heads/main' }}
-    steps:
-      - name: Check out repo
-        uses: actions/checkout@v4
-      - name: Pull Artifacts
-        uses: actions/download-artifact@v4
-        with:
-          name: web-app
-          path: build/web
-      - name: Build container image
-        uses: docker/build-push-action@v5
-        with:
-          context: .
-          tags: ghcr.io/preparingforexams/wheel-of-misfortune-app:${{ github.sha }}
-
-  push-image:
-    runs-on: ubuntu-latest
-    needs: build
-    if: ${{ success() && github.ref == 'refs/heads/main' }}
-    steps:
-      - name: Check out repo
-        uses: actions/checkout@v4
-      - name: Pull Artifacts
-        uses: actions/download-artifact@v4
-        with:
-          name: web-app
-          path: build/web
-      - name: Login to GitHub Container Registry
-        uses: docker/login-action@v3
-        with:
-          registry: ghcr.io
-          username: ${{ github.repository_owner }}
-          password: ${{ github.token }}
-      - name: Build container image
-        uses: docker/build-push-action@v5
-        with:
-          build-args: build=${{ github.sha }}
-          context: .
-          push: true
-          tags: ghcr.io/preparingforexams/wheel-of-misfortune-app:${{ github.sha }}
-
   deploy:
     runs-on: ubuntu-latest
-    needs: push-image
+    needs: build
     concurrency: production
+    container: rclone/rclone:1.68
     steps:
-      - uses: actions/checkout@v4
-      - name: Substitute environment variables in values.yaml
-        run: "envsubst < values.yaml > values_sub.yaml && mv values_sub.yaml values.yaml"
-      - uses: WyriHaximus/github-action-helm3@v4
+      - uses: action/download-artifact@v4
         with:
-          exec: helm upgrade app . --install --namespace=misfortune --atomic
-          kubeconfig: '${{ secrets.KUBECONFIG_RAW }}'
+          name: web-app
+      - name: Save rclone config
+        env:
+          CONFIG: |
+            [r2]
+            type = s3
+            provider = Cloudflare
+            access_key_id = ${{ secrets.AWS_ACCESS_KEY_ID }}
+            secret_access_key = ${{ secrets.AWS_SECRET_ACCESS_KEY}
+            region = auto
+            endpoint = ${{ secrets.S3_ENDPOINT }}
+        run: echo "$CONFIG" > /config/rclone/rclone.conf
+      - name: Copy web package to bucket
+        run: rclone sync . r2:/

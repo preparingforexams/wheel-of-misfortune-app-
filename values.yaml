@@ -1,1 +1,0 @@
-image: ghcr.io/preparingforexams/wheel-of-misfortune-app:${GITHUB_SHA}
