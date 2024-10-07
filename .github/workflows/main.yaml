@@ -27,8 +27,6 @@ jobs:
       - uses: asdf-vm/actions/install@v3
       - name: Get dependencies
         run: flutter pub get
-      - name: Run code generation
-        run: dart run build_runner build
       - name: Run Analysis
         run: flutter analyze --fatal-infos
 
@@ -42,8 +40,6 @@ jobs:
       - uses: asdf-vm/actions/install@v3
       - name: Get dependencies
         run: flutter pub get
-      - name: Run code generation
-        run: dart run build_runner build
       - name: Build web package
         run: flutter build web
       - name: Store build result
