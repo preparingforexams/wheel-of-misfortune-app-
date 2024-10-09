@@ -177,7 +177,7 @@ class MisfortuneState {
       stage: Stage.spinning,
       tooSlow: false,
       movement: speed.toString(),
-      code: code,
+      code: null,
       error: null,
     );
   }
