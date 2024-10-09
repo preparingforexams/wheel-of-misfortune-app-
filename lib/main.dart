@@ -205,7 +205,7 @@ class _QrScannerState extends State<QrScanner> {
     final uri = _extractUri(barcode);
     if (uri != null && uri.authority == 'bembel.party') {
       final code = uri.queryParameters['code'];
-      final wheelId = uri.queryParameters['wheelId'];
+      final wheelId = uri.queryParameters['wheelID'];
       if (code != null && wheelId != null) {
         return ScanQrEvent(code: code, wheelId: wheelId);
       }
@@ -229,9 +229,10 @@ class _QrScannerState extends State<QrScanner> {
       },
       errorBuilder: (context, error, widget) {
         return Center(
-            child: Text(
-          'Error ${error.errorCode}: ${error.errorDetails?.message}',
-        ));
+          child: Text(
+            'Error ${error.errorCode}: ${error.errorDetails?.message}',
+          ),
+        );
       },
       controller: _controller,
     );
