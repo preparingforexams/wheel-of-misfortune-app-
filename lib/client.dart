@@ -1,16 +1,24 @@
 import 'package:http/http.dart' as http;
 
 abstract class MisfortuneClient {
-  Future<bool> spin({required String code, required double speed});
+  Future<bool> spin({
+    required String wheelId,
+    required String code,
+    required double speed,
+  });
 }
 
 class HttpMisfortuneClient implements MisfortuneClient {
   @override
-  Future<bool> spin({required String code, required double speed}) async {
+  Future<bool> spin({
+    required String wheelId,
+    required String code,
+    required double speed,
+  }) async {
     final response = await http.post(
       Uri.https(
         'api.bembel.party',
-        'spin',
+        '/wheel/$wheelId/is_locked',
         {
           'speed': '$speed',
         },

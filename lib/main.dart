@@ -7,15 +7,18 @@ import 'package:mobile_scanner/mobile_scanner.dart';
 
 void main() {
   usePathUrlStrategy();
-  runApp(MyApp(code: Uri.base.queryParameters['code']));
+  final queryParams = Uri.base.queryParameters;
+  runApp(MyApp(code: queryParams['code'], wheelId: queryParams['wheelID']));
 }
 
 class MyApp extends StatelessWidget {
   final String? code;
+  final String? wheelId;
 
   const MyApp({
     super.key,
     required this.code,
+    required this.wheelId,
   });
 
   // This widget is the root of your application.
@@ -35,17 +38,19 @@ class MyApp extends StatelessWidget {
         // is not restarted.
         primarySwatch: Colors.blue,
       ),
-      home: BlocPage(code: code),
+      home: BlocPage(code: code, wheelId: wheelId),
     );
   }
 }
 
 class BlocPage extends StatelessWidget {
   final String? code;
+  final String? wheelId;
 
   const BlocPage({
     super.key,
     required this.code,
+    required this.wheelId,
   });
 
   @override
@@ -54,6 +59,7 @@ class BlocPage extends StatelessWidget {
       create: (context) => MisfortuneBloc(
         client: HttpMisfortuneClient(),
         code: code,
+        wheelId: wheelId,
       ),
       child: const MainPage(),
     );
@@ -195,12 +201,13 @@ class _QrScannerState extends State<QrScanner> {
     return Uri.tryParse(url);
   }
 
-  String? _extractCode(Barcode barcode) {
+  ScanQrEvent? _extractScanEvent(Barcode barcode) {
     final uri = _extractUri(barcode);
     if (uri != null && uri.authority == 'bembel.party') {
       final code = uri.queryParameters['code'];
-      if (code != null) {
-        return code;
+      final wheelId = uri.queryParameters['wheelId'];
+      if (code != null && wheelId != null) {
+        return ScanQrEvent(code: code, wheelId: wheelId);
       }
     }
 
@@ -213,9 +220,9 @@ class _QrScannerState extends State<QrScanner> {
     return MobileScanner(
       onDetect: (barcodeCapture) {
         for (final barcode in barcodeCapture.barcodes) {
-          final code = _extractCode(barcode);
-          if (code != null) {
-            bloc.add(ScanQrEvent(code));
+          final event = _extractScanEvent(barcode);
+          if (event != null) {
+            bloc.add(event);
             break;
           }
         }

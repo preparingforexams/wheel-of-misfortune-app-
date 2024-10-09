@@ -15,9 +15,10 @@ class PressButtonEvent implements _MisfortuneEvent {
 }
 
 class ScanQrEvent implements _MisfortuneEvent {
+  final String wheelId;
   final String code;
 
-  ScanQrEvent(this.code);
+  ScanQrEvent({required this.code, required this.wheelId});
 }
 
 class _PermissionResultEvent implements _MisfortuneEvent {
@@ -45,6 +46,7 @@ enum Stage {
 class MisfortuneState {
   final Stage stage;
   final bool tooSlow;
+  final String? wheelId;
   final String? movement;
   final String? code;
   final String? error;
@@ -52,20 +54,25 @@ class MisfortuneState {
   const MisfortuneState._({
     required this.stage,
     required this.tooSlow,
+    this.wheelId,
     this.movement,
     this.code,
     this.error,
   });
 
-  factory MisfortuneState.initial(String? code) {
+  factory MisfortuneState.initial({
+    required String? code,
+    required String? wheelId,
+  }) {
     final browser = Browser();
     if (browser.browserAgent == BrowserAgent.Safari) {
       return MisfortuneState._(
         stage: Stage.awaitingPermissions,
         tooSlow: false,
         code: code,
+        wheelId: wheelId,
       );
-    } else if (code == null) {
+    } else if (code == null || wheelId == null) {
       return const MisfortuneState._(
         stage: Stage.awaitingPress,
         tooSlow: false,
@@ -75,6 +82,7 @@ class MisfortuneState {
         stage: Stage.awaitingSpin,
         tooSlow: false,
         code: code,
+        wheelId: wheelId,
       );
     }
   }
@@ -82,6 +90,7 @@ class MisfortuneState {
   MisfortuneState copy({
     Stage? stage,
     bool? tooSlow,
+    String? wheelId,
     required String? movement,
     required String? code,
     required String? error,
@@ -91,12 +100,13 @@ class MisfortuneState {
       tooSlow: tooSlow ?? this.tooSlow,
       movement: movement,
       code: code,
+      wheelId: wheelId ?? this.wheelId,
       error: error,
     );
   }
 
   MisfortuneState permissionGranted() {
-    if (code != null) {
+    if (wheelId != null && code != null) {
       return copy(
         stage: Stage.awaitingSpin,
         movement: movement,
@@ -107,7 +117,8 @@ class MisfortuneState {
       return copy(
         stage: Stage.awaitingPress,
         movement: movement,
-        code: code,
+        code: null,
+        wheelId: null,
         error: error,
       );
     }
@@ -129,6 +140,7 @@ class MisfortuneState {
       tooSlow: false,
       movement: null,
       code: null,
+      wheelId: null,
       error: null,
     );
   }
@@ -138,6 +150,7 @@ class MisfortuneState {
       stage: Stage.scanningCode,
       tooSlow: false,
       code: null,
+      wheelId: null,
       movement: null,
     );
   }
@@ -146,6 +159,7 @@ class MisfortuneState {
     required bool tooSlow,
     required double? speed,
     String? code,
+    String? wheelId,
     String? movement,
   }) {
     return copy(
@@ -153,6 +167,7 @@ class MisfortuneState {
       tooSlow: tooSlow,
       movement: movement ?? speed?.toString(),
       code: code ?? this.code,
+      wheelId: wheelId ?? this.wheelId,
       error: null,
     );
   }
@@ -175,8 +190,9 @@ class MisfortuneBloc extends Bloc<_MisfortuneEvent, MisfortuneState> {
   MisfortuneBloc({
     required MisfortuneClient client,
     required String? code,
+    required String? wheelId,
   })  : _client = client,
-        super(MisfortuneState.initial(code)) {
+        super(MisfortuneState.initial(code: code, wheelId: wheelId)) {
     if (state.stage == Stage.awaitingPermissions) {
       requestSafariPermissions();
     } else if (code != null) {
@@ -226,7 +242,11 @@ class MisfortuneBloc extends Bloc<_MisfortuneEvent, MisfortuneState> {
     }
 
     try {
-      final result = await _client.spin(code: state.code!, speed: speed);
+      final result = await _client.spin(
+        wheelId: state.wheelId!,
+        code: state.code!,
+        speed: speed,
+      );
       if (result) {
         emit(state.spinning(speed));
       } else {
@@ -267,7 +287,12 @@ class MisfortuneBloc extends Bloc<_MisfortuneEvent, MisfortuneState> {
     Emitter<MisfortuneState> emit,
   ) {
     _subscribe();
-    emit(state.awaitSpin(tooSlow: false, speed: null, code: event.code));
+    emit(state.awaitSpin(
+      tooSlow: false,
+      speed: null,
+      code: event.code,
+      wheelId: event.wheelId,
+    ));
   }
 
   FutureOr<void> _pressButton(
