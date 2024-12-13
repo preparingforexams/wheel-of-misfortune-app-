@@ -5,26 +5,26 @@ on:
   pull_request: {}
 
 jobs:
-  validate-renovate-config:
-    uses: BlindfoldedSurgery/renovate-config/.github/workflows/validate.yml@main
+  required-meta:
+    uses: BlindfoldedSurgery/actions-meta/.github/workflows/required.yml@v1
 
   check-format:
     name: Check Format
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - name: Check out repo
         uses: actions/checkout@v4
-      - uses: asdf-vm/actions/install@v3
+      - uses: jdx/mise-action@v2
       - name: Check lib formatting
         run: dart format lib --set-exit-if-changed --output=none
 
   lint:
     name: Lint
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - name: Check out repo
         uses: actions/checkout@v4
-      - uses: asdf-vm/actions/install@v3
+      - uses: jdx/mise-action@v2
       - name: Get dependencies
         run: flutter pub get
       - name: Run Analysis
@@ -32,12 +32,14 @@ jobs:
 
   build:
     name: Build Web Package
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
+    container:
+      image: ghcr.io/blindfoldedsurgery/flutter:2.1.0-3.24
+      options: --user 0
     needs: [check-format, lint]
     steps:
       - name: Check out repo
         uses: actions/checkout@v4
-      - uses: asdf-vm/actions/install@v3
       - name: Get dependencies
         run: flutter pub get
       - name: Build web package
@@ -49,7 +51,7 @@ jobs:
           path: build/web
 
   deploy:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     needs: build
     concurrency: production
     container: rclone/rclone:1.68
