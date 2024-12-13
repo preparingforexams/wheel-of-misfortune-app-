@@ -6,6 +6,9 @@ on:
 
 jobs:
   required-meta:
+    permissions:
+      contents: write
+      checks: write
     uses: BlindfoldedSurgery/actions-meta/.github/workflows/required.yml@v1
 
   check-format:
