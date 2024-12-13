@@ -75,4 +75,4 @@ jobs:
           mkdir -p /config/rclone
           echo "$CONFIG" > /config/rclone/rclone.conf
       - name: Copy web package to bucket
-        run: rclone sync $PWD r2:${{ secrets.S3_BUCKET_NAME }}/
+        run: rclone sync "$PWD" r2:${{ secrets.S3_BUCKET_NAME }}/
